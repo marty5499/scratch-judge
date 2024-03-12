@@ -1,0 +1,68 @@
+<body>
+    <script src="./scratch-vm.js"></script>
+    <script src="./scratch-storage.js"></script>
+    <script src="./scratch-svg-renderer.js"></script>
+    <script src="./scratch-render.js"></script>
+
+    <canvas id="test" width="480" height="360" style="width: 480px"></canvas>
+
+    <script>
+        // These variables are going to be available in the "window global" intentionally.
+        // Allows you easy access to debug with `vm.greenFlag()` etc.
+        window.devicePixelRatio = 1;
+        var canvas = document.getElementById('test');
+        var render = new ScratchRender(canvas);
+        var vm = new VirtualMachine();
+        var storage = new ScratchStorage();
+        var mockMouse = data => vm.runtime.postIOData('mouse', {
+            canvasWidth: canvas.width,
+            canvasHeight: canvas.height,
+            ...data,
+        });
+        vm.attachStorage(storage);
+        vm.attachRenderer(render);
+        vm.attachV2SVGAdapter(new ScratchSVGRenderer.SVGRenderer());
+        vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
+
+        setInterval(function () {
+            vm.postIOData('keyboard', {
+                key: "ArrowRight",
+                isDown: true
+            });
+            vm.runtime.targets.forEach(target => {
+                if (!target.isStage) {
+                    console.log(`Sprite Name: ${target.sprite.name}`);
+                    console.log(`Sprite ID: ${target.id} ,x= ${target.x}`);
+                    window.act = target;
+                }
+            });
+        }, 1000);
+
+        document.addEventListener('keydown', e => {
+            console.log("key:", e.key);
+            vm.postIOData('keyboard', {
+                key: e.key,
+                isDown: true
+            });
+
+        });
+
+        document.addEventListener('keyup', e => {
+            vm.postIOData('keyboard', {
+                key: e.key,
+                isDown: false
+            });
+        });
+
+        fetch('./stage_1.sb3').then(response => response.arrayBuffer()).then(projectData => {
+            vm.start();
+            vm.loadProject(projectData).then(() => {
+                vm.greenFlag();
+            }).catch(error => {
+                console.error('Failed to load or start the project:', error);
+            });
+        }).catch(error => {
+            console.error('Failed to fetch the .sb3 file:', error);
+        });
+    </script>
+</body>
