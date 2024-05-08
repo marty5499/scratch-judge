@@ -1,9 +1,9 @@
 /*
-Unit 1-3
-評測目標3：賦予角色基本移動參數(跳躍、二段跳躍)
+評測目標4：創造角色的動作造型(跳躍、二段跳躍)
 
 範例操作
-https://scratch.mit.edu/projects/975854235
+
+https://scratch.mit.edu/projects/979020087
 
 按⭡跳躍
 
@@ -11,11 +11,10 @@ https://scratch.mit.edu/projects/975854235
 序列
 迴圈
 學習重點
-重覆固定次數
-舞台 x, y 軸
-積木：y 改變
+準備二種造型：跑步及跳躍
+向上跳躍時切換造型
 評量標準
-按下向上鍵，角色向上移動100後向下移動100
+按下向上鍵，角色切換成跳躍造型，角色向上移動100後向下移動100，落地後換回跑步造型
 */
 
 window.TestCase = class TestCase {
@@ -37,9 +36,14 @@ window.TestCase = class TestCase {
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
     console.log("value:", values);
-    this.callback("case01", values[9]['y']==100, "跳一跳");
+    var condition =
+      values[9]["y"] == 100 && //跳到最高處
+      values[0]["currentCostume"] == 1 && //換跳耀造型
+      values[20]["currentCostume"] == 0; //換回造型
+
+    this.callback("case01", condition, "跳一跳");
     sprite["records"] = [];
   }
-}
+};
 
 window.TestCase = TestCase;
