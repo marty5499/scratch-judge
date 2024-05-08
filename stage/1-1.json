@@ -1,0 +1,8 @@
+{
+    "01": {
+        "action": "await this.press('ArrowRight', 500)"
+    },
+    "02": {
+        "action": "await this.press('ArrowLeft', 1000)"
+    }
+}

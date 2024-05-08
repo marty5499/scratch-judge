@@ -3,8 +3,13 @@
     <script src="./scratch-storage.js"></script>
     <script src="./scratch-svg-renderer.js"></script>
     <script src="./scratch-render.js"></script>
+    <script src="./judge.js"></script>
 
     <canvas id="test" width="480" height="360" style="width: 480px"></canvas>
+
+    <!-- 添加输入框和按钮 -->
+    <input type="text" id="projectFile" placeholder="Enter SB3 file name" value="1-1">
+    <button id="loadProjectButton">讀取</button>
 
     <script>
         // These variables are going to be available in the "window global" intentionally.
@@ -24,27 +29,12 @@
         vm.attachV2SVGAdapter(new ScratchSVGRenderer.SVGRenderer());
         vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
 
-        setInterval(function () {
-            vm.postIOData('keyboard', {
-                key: "ArrowRight",
-                isDown: true
-            });
-            vm.runtime.targets.forEach(target => {
-                if (!target.isStage) {
-                    console.log(`Sprite Name: ${target.sprite.name}`);
-                    console.log(`Sprite ID: ${target.id} ,x= ${target.x}`);
-                    window.act = target;
-                }
-            });
-        }, 3000);
-
         document.addEventListener('keydown', e => {
             console.log("key:", e.key);
             vm.postIOData('keyboard', {
                 key: e.key,
                 isDown: true
             });
-
         });
 
         document.addEventListener('keyup', e => {
@@ -54,24 +44,41 @@
             });
         });
 
-        fetch('./stage/EGame Scratch Unit 1-1.sb3').then(response => response.arrayBuffer()).then(projectData => {
-            vm.start();
-            vm.loadProject(projectData).then(() => {
-
-                vm.runtime.targets.forEach(target => {
-                    if (!target.isStage) {
-                        console.log(`Sprite Name: ${target.sprite.name}`);
-                        console.log(`Sprite ID: ${target.id} ,x= ${target.x}`);
-                        window.act = target;
-                    }
+        function loadProject(projectFileName) {
+            // 引入 .js 文件
+            var script = document.createElement('script');
+            script.src = `./stage/${projectFileName}.js`;
+            script.onload = () => {
+                fetch(`./stage/${projectFileName}.sb3`).then(response => response.arrayBuffer()).then(projectData => {
+                    var judge = new Judge(vm, window.TestCase);
+                    vm.start();
+                    vm.loadProject(projectData).then(async () => {
+                        await judge.start();
+                    }).catch(error => {
+                        console.error('Failed to load or start the project:', error);
+                    });
+                }).catch(error => {
+                    console.error('Failed to fetch the .sb3 file:', error);
                 });
-                // Run
-                vm.greenFlag();
-            }).catch(error => {
-                console.error('Failed to load or start the project:', error);
-            });
-        }).catch(error => {
-            console.error('Failed to fetch the .sb3 file:', error);
+            };
+            script.onerror = () => {
+                console.error('Failed to load the JS file:', error);
+                document.getElementById('jsonOutput').textContent = 'Error loading JS file.';
+            };
+            document.head.appendChild(script);
+        }
+
+        // 处理按钮点击和输入框回车事件
+        document.getElementById('loadProjectButton').addEventListener('click', () => {
+            var projectFileName = document.getElementById('projectFile').value;
+            loadProject(projectFileName);
+        });
+
+        document.getElementById('projectFile').addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                var projectFileName = document.getElementById('projectFile').value;
+                loadProject(projectFileName);
+            }
         });
     </script>
 </body>
