@@ -56,7 +56,7 @@ window.TestCase = class TestCase {
   async case02() {
     //action
     await this.judge.press("ArrowLeft", 200);
-    await this.judge.delay(300);
+    await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
