@@ -56,11 +56,12 @@ window.TestCase = class TestCase {
   async case02() {
     //action
     await this.judge.press("ArrowLeft", 200);
+    await this.judge.delay(300);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
-    //console.log("case02:", values);
+    console.log("case02:", values);
     var firstEle = values[0]["x"];
     var lastEle = values[values.length - 1]["x"];
     var val = lastEle + firstEle;
