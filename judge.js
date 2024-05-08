@@ -55,8 +55,11 @@ class Judge {
     this.loadSprite();
     this.vm.greenFlag();
     // Start periodic check for updates
-    setInterval(() => this.checkForUpdates(), 100); // check every 100 milliseconds
-    await this.testcase.case01();
+    setInterval(() => this.checkForUpdates(), 50); // check every 100 milliseconds
+    var ele = document.getElementById("result");
+    await this.testcase.start(function (name, result, msg) {
+      ele.innerHTML += `<h3>${name}: 測試 ${msg} , 結果: ${result ? "成功" : "失敗"}</h3>`;
+    });
   }
 
   onUpdate(sprite) {
