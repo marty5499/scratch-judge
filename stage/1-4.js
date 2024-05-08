@@ -41,7 +41,7 @@ window.TestCase = class TestCase {
       values[0]["currentCostume"] == 1 && //換跳耀造型
       values[20]["currentCostume"] == 0; //換回造型
 
-    this.callback("case01", condition, "跳一跳");
+    this.callback("case01", condition, "換姿勢跳起來");
     sprite["records"] = [];
   }
 };

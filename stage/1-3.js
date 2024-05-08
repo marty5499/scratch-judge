@@ -37,7 +37,7 @@ window.TestCase = class TestCase {
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
     console.log("value:", values);
-    this.callback("case01", values[9]['y']==100, "跳一跳");
+    this.callback("case01", values[9]['y']==100, "跳起來");
     sprite["records"] = [];
   }
 }
