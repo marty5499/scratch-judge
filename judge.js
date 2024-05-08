@@ -40,23 +40,32 @@ class Judge {
   }
 
   registerObservers(target) {
-    const judge = this;
-    this.monitorProperty(target, 'x');
-    this.monitorProperty(target, 'y');
+    this.monitorProperty(target, 'x', true);
+    this.monitorProperty(target, 'y', true);
     this.monitorProperty(target, 'direction');
     this.monitorProperty(target, 'currentCostume');
   }
 
-  monitorProperty(target, propName) {
-    var judge = this;
+  monitorProperty(target, propName, isCoordinate = false) {
+    const judge = this;
     let originalValue = target[propName];
     Object.defineProperty(target, propName, {
       get: function () {
         return originalValue;
       },
       set: function (newValue) {
-        originalValue = newValue;
-        judge.onUpdate(this);
+        if (isCoordinate) {
+          // Trigger update only if the integer part changes
+          if (Math.floor(originalValue) !== Math.floor(newValue)) {
+            originalValue = newValue;
+            judge.onUpdate(this);
+          } else {
+            originalValue = newValue; // Still update the value but do not trigger
+          }
+        } else {
+          originalValue = newValue;
+          judge.onUpdate(this);
+        }
       },
       configurable: true,
     });

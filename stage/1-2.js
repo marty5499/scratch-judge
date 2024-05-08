@@ -66,15 +66,15 @@ window.TestCase = class TestCase {
   async case03() {
     //action
     await this.judge.press("ArrowLeft", 1000);
+    await this.judge.delay(100); //等待造型變換
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
     var ele = values[values.length - 1];
-    console.log("ele:", ele);
     this.callback(
       "case03",
-      (ele["x"] = -270 && ele["direction"] == -90),
+      (ele["x"] == -270 && ele["direction"] == -90),
       "移動到左側"
     );
     sprite["records"] = [];
