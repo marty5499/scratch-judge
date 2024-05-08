@@ -58,7 +58,12 @@ class Judge {
     setInterval(() => this.checkForUpdates(), 50); // check every 100 milliseconds
     var ele = document.getElementById("result");
     await this.testcase.start(function (name, result, msg) {
-      ele.innerHTML += `<h3>${name}: 測試 ${msg} , 結果: ${result ? "成功" : "失敗"}</h3>`;
+      if (result) {
+        ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg}  成功</h3>`;  
+      } else {
+        ele.innerHTML += `<h3 style="background-color:#ffaaaa">${name}: 測試 ${msg}  失敗</h3>`;  
+      }
+      
     });
   }
 

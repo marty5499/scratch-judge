@@ -1,4 +1,5 @@
-class TestCase {
+
+window.TestCase = class TestCase {
   constructor(judge) {
     this.judge = judge;
   }

@@ -1,3 +1,79 @@
+# judge.js
+class Judge {
+  constructor(vm, TestCase) {
+    this.vm = vm;
+    this.TestCase = TestCase;
+    this.sprites = {};
+  }
+
+  async press(key, ms) {
+    this.vm.postIOData("keyboard", {
+      key: key,
+      isDown: true,
+    });
+    await this.delay(ms);
+    this.vm.postIOData("keyboard", {
+      key: key,
+      isDown: false,
+    });
+  }
+
+  async delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  loadSprite() {
+    this.vm.runtime.targets.forEach((target) => {
+      if (!target.isStage) {
+        this.sprites[target.id] = {
+          target: target,
+          name: target.sprite.name,
+          id: target.id,
+          x: target.x,
+          y: target.y,
+          records: [],
+        };
+      }
+    });
+  }
+
+  checkForUpdates() {
+    // Check each sprite for changes
+    for (const id in this.sprites) {
+      const sprite = this.sprites[id];
+      if (sprite.target.x !== sprite.x || sprite.target.y !== sprite.y) {
+        // Update detected, call onUpdate
+        this.onUpdate(sprite);
+        // Update last known position
+        sprite.x = sprite.target.x;
+        sprite.y = sprite.target.y;
+      }
+    }
+  }
+
+  async start() {
+    this.testcase = new this.TestCase(this);
+    this.loadSprite();
+    this.vm.greenFlag();
+    // Start periodic check for updates
+    setInterval(() => this.checkForUpdates(), 50); // check every 100 milliseconds
+    var ele = document.getElementById("result");
+    await this.testcase.start(function (name, result, msg) {
+      if (result) {
+        ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg}  成功</h3>`;  
+      } else {
+        ele.innerHTML += `<h3 style="background-color:#ffaaaa">${name}: 測試 ${msg}  失敗</h3>`;  
+      }
+      
+    });
+  }
+
+  onUpdate(sprite) {
+    sprite["records"].push(sprite.target.x);
+  }
+}
+
+# index.html
 <style>
     #main {
         display: flex;
@@ -119,3 +195,8 @@
         });
     </script>
 </body>
+
+
+===
+我目前 judge 使用 checkForUpdates() 每 50ms 偵測 sprite 資訊有沒有變化，這樣效率很差，
+如何改寫成當 sprite 資訊有變化主動通知我?
