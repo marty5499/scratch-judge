@@ -41,6 +41,7 @@ window.TestCase = class TestCase {
   async case01() {
     //action
     await this.judge.press("ArrowRight", 100);
+    await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
@@ -72,7 +73,8 @@ window.TestCase = class TestCase {
   // 檢查攻擊造型是否有改變
   async case03() {
     //action
-    await this.judge.press("a", 500);
+    await this.judge.press("a", 100);
+    await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
@@ -93,6 +95,7 @@ window.TestCase = class TestCase {
     //action
     this.judge.press("ArrowLeft", 200);
     await this.judge.press("ArrowUp", 10);
+    await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];

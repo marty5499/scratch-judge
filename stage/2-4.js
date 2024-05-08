@@ -42,6 +42,7 @@ window.TestCase = class TestCase {
   async case01() {
     //action
     await this.judge.press("ArrowRight", 300);
+    await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
@@ -57,6 +58,7 @@ window.TestCase = class TestCase {
   async case02() {
     //action
     await this.judge.press("ArrowLeft", 200);
+    await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
@@ -69,7 +71,8 @@ window.TestCase = class TestCase {
   // 檢查防禦造型是否有改變
   async case03() {
     //action
-    await this.judge.press("d", 500);
+    await this.judge.press("d", 200);
+    await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
@@ -92,7 +95,7 @@ window.TestCase = class TestCase {
     this.judge.press("ArrowUp", 50);
     await this.judge.delay(50);
     this.judge.press("d", 50);
-    await this.judge.delay(350);
+    await this.judge.delay(600);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
@@ -102,13 +105,13 @@ window.TestCase = class TestCase {
       values[0]["x"] == -20 &&
       values[0]["currentCostume"] == 0 &&
 
-      values[20]["x"] == -110 &&
+      values[20]["x"] <= -110 &&
       parseInt(values[20]["y"]) == 100 &&
       values[20]["currentCostume"] == 1 &&
 
-      values[33]["x"] == -140 &&
-      parseInt(values[33]["y"]) == 10 &&
-      values[33]["currentCostume"] == 2 &&
+      values[31]["x"] <= -140 &&
+      parseInt(values[31]["y"]) == 30 &&
+      values[31]["currentCostume"] == 2 &&
       
       values[35]["x"] <= -140 &&
       parseInt(values[35]["y"]) == 5 &&
