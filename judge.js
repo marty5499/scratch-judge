@@ -30,23 +30,57 @@ class Judge {
           id: target.id,
           x: target.x,
           y: target.y,
+          direction: target.direction,
+          currentCostume: target.currentCostume,
           records: [],
         };
+        this.registerObservers(target);
       }
     });
   }
 
-  checkForUpdates() {
-    // Check each sprite for changes
-    for (const id in this.sprites) {
-      const sprite = this.sprites[id];
-      if (sprite.target.x !== sprite.x || sprite.target.y !== sprite.y) {
-        // Update detected, call onUpdate
-        this.onUpdate(sprite);
-        // Update last known position
-        sprite.x = sprite.target.x;
-        sprite.y = sprite.target.y;
+  registerObservers(target) {
+    const judge = this;
+    this.monitorProperty(target, 'x');
+    this.monitorProperty(target, 'y');
+    this.monitorProperty(target, 'direction');
+    this.monitorProperty(target, 'currentCostume');
+  }
+
+  monitorProperty(target, propName) {
+    var judge = this;
+    let originalValue = target[propName];
+    Object.defineProperty(target, propName, {
+      get: function () {
+        return originalValue;
+      },
+      set: function (newValue) {
+        originalValue = newValue;
+        judge.onUpdate(this);
+      },
+      configurable: true,
+    });
+  }
+
+  onUpdate(sprite) {
+    const spriteRecord = this.sprites[sprite.id];
+    const properties = ['x', 'y', 'direction', 'currentCostume'];
+    let updated = false;
+
+    properties.forEach(prop => {
+      if (sprite[prop] !== spriteRecord[prop]) {
+        spriteRecord[prop] = sprite[prop];
+        updated = true;
       }
+    });
+
+    if (updated) {
+      spriteRecord["records"].push({
+        x: sprite.x,
+        y: sprite.y,
+        direction: sprite.direction,
+        currentCostume: sprite.currentCostume
+      });
     }
   }
 
@@ -54,20 +88,13 @@ class Judge {
     this.testcase = new this.TestCase(this);
     this.loadSprite();
     this.vm.greenFlag();
-    // Start periodic check for updates
-    setInterval(() => this.checkForUpdates(), 50); // check every 100 milliseconds
     var ele = document.getElementById("result");
     await this.testcase.start(function (name, result, msg) {
       if (result) {
-        ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg}  成功</h3>`;  
+        ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg} 成功</h3>`;
       } else {
-        ele.innerHTML += `<h3 style="background-color:#ffaaaa">${name}: 測試 ${msg}  失敗</h3>`;  
+        ele.innerHTML += `<h3 style="background-color:#ffaaaa">${name}: 測試 ${msg} 失敗</h3>`;
       }
-      
     });
-  }
-
-  onUpdate(sprite) {
-    sprite["records"].push(sprite.target.x);
   }
 }

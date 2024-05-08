@@ -55,8 +55,8 @@ window.TestCase = class TestCase {
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
-    var firstEle = values[0];
-    var lastEle = values[values.length - 1];
+    var firstEle = values[0]["x"];
+    var lastEle = values[values.length - 1]["x"];
     var val = lastEle - firstEle;
     this.callback("case02", val > 0, "移動到右側");
     sprite["records"] = [];
@@ -70,12 +70,15 @@ window.TestCase = class TestCase {
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
-    var firstEle = values[0];
-    var lastEle = values[values.length - 1];
-    var val = lastEle + firstEle;
-    this.callback("case03", val < 0, "移動到左側");
+    var ele = values[values.length - 1];
+    console.log("ele:", ele);
+    this.callback(
+      "case03",
+      (ele["x"] = -270 && ele["direction"] == -90),
+      "移動到左側"
+    );
     sprite["records"] = [];
   }
-}
+};
 
 window.TestCase = TestCase;
