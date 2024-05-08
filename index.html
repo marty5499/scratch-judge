@@ -54,7 +54,7 @@
             });
         });
 
-        fetch('./stage_1.sb3').then(response => response.arrayBuffer()).then(projectData => {
+        fetch('./stage/EGame Scratch Unit 1-1.sb3').then(response => response.arrayBuffer()).then(projectData => {
             vm.start();
             vm.loadProject(projectData).then(() => {
 
@@ -65,7 +65,7 @@
                         window.act = target;
                     }
                 });
-
+                // Run
                 vm.greenFlag();
             }).catch(error => {
                 console.error('Failed to load or start the project:', error);
