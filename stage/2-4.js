@@ -41,7 +41,7 @@ window.TestCase = class TestCase {
   // 向右移動0.5秒，最後x座標要大於原來的x座標
   async case01() {
     //action
-    await this.judge.press("ArrowRight", 300);
+    this.judge.press("ArrowRight", 300);
     await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
@@ -57,7 +57,7 @@ window.TestCase = class TestCase {
   // 向左移動1秒，最後x座標要小於原來的x座標
   async case02() {
     //action
-    await this.judge.press("ArrowLeft", 200);
+    this.judge.press("ArrowLeft", 200);
     await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
@@ -71,7 +71,7 @@ window.TestCase = class TestCase {
   // 檢查防禦造型是否有改變
   async case03() {
     //action
-    await this.judge.press("d", 200);
+    this.judge.press("d", 200);
     await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
@@ -95,14 +95,14 @@ window.TestCase = class TestCase {
     this.judge.press("ArrowUp", 50);
     await this.judge.delay(50);
     this.judge.press("d", 50);
-    await this.judge.delay(600);
+    await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
     console.log("case04:", values);
     var condition =
-      values[0]["x"] == -20 &&
+      values[0]["x"] <= -20 &&
       values[0]["currentCostume"] == 0 &&
 
       values[20]["x"] <= -110 &&

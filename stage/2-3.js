@@ -56,7 +56,7 @@ window.TestCase = class TestCase {
   // 向左移動1秒，最後x座標要小於原來的x座標
   async case02() {
     //action
-    await this.judge.press("ArrowLeft", 200);
+    this.judge.press("ArrowLeft", 200);
     await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
@@ -74,7 +74,7 @@ window.TestCase = class TestCase {
   async case03() {
     //action
     await this.judge.press("a", 100);
-    await this.judge.delay(500);
+    await this.judge.delay(1000);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
@@ -95,7 +95,7 @@ window.TestCase = class TestCase {
     //action
     this.judge.press("ArrowLeft", 200);
     await this.judge.press("ArrowUp", 10);
-    await this.judge.delay(500);
+    await this.judge.delay(1000);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];

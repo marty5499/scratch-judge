@@ -39,7 +39,7 @@ window.TestCase = class TestCase {
       values[1]["currentCostume"] == 2 && //防禦造型2
       values[2]["currentCostume"] == 0; //換回造型
 
-    this.callback("case01", condition, "攻擊造型切換");
+    this.callback("case01", condition, "防禦造型切換");
     sprite["records"] = [];
   }
 };
