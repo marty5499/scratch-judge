@@ -41,5 +41,3 @@ window.TestCase = class TestCase {
     sprite["records"] = [];
   }
 }
-
-window.TestCase = TestCase;
