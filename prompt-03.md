@@ -1,3 +1,131 @@
+# judge.js
+class Judge {
+  constructor(vm, TestCase) {
+    this.vm = vm;
+    this.TestCase = TestCase;
+    this.sprites = {};
+  }
+
+  async press(key, ms) {
+    this.vm.postIOData("keyboard", {
+      key: key,
+      isDown: true,
+    });
+    await this.delay(ms);
+    this.vm.postIOData("keyboard", {
+      key: key,
+      isDown: false,
+    });
+  }
+
+  async delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  loadSprite() {
+    this.vm.runtime.targets.forEach((target) => {
+      if (!target.isStage) {
+        this.sprites[target.id] = {
+          target: target,
+          name: target.sprite.name,
+          id: target.id,
+          x: target.x,
+          y: target.y,
+          direction: target.direction,
+          currentCostume: target.currentCostume,
+          records: [],
+        };
+        this.registerObservers(target);
+      }
+    });
+  }
+
+  monitorClonesUpdate(target) {
+    var self = this;
+    var clones = target.sprite.clones;
+    // 使用 Proxy 來創建一個可監控的代理陣列
+    var clonesProxy = new Proxy(clones, {
+      set: function (target, property, value, receiver) {
+        // impl...
+        return true;
+      },
+    });
+    target.sprite.clones = clonesProxy;
+  }
+
+  registerObservers(target) {
+    this.monitorClonesUpdate(target);
+    this.monitorProperty(target, "x", true);
+    this.monitorProperty(target, "y", true);
+    this.monitorProperty(target, "direction");
+    this.monitorProperty(target, "currentCostume");
+  }
+
+  monitorProperty(target, propName, isCoordinate = false) {
+    console.log(">>>",target,"propName:",propName);
+    const judge = this;
+    let originalValue = target[propName];
+    Object.defineProperty(target, propName, {
+      get: function () {
+        return originalValue;
+      },
+      set: function (newValue) {
+        if (isCoordinate) {
+          if (Math.floor(originalValue) !== Math.floor(newValue)) {
+            originalValue = newValue;
+            judge.onUpdate(this);
+          } else {
+            originalValue = newValue; // 仍然更新值但不触发
+          }
+        } else {
+          originalValue = newValue;
+          judge.onUpdate(this);
+        }
+      },
+      configurable: true,
+    });
+  }
+
+  onUpdate(sprite) {
+    const spriteRecord = this.sprites[sprite.id];
+    const properties = ["x", "y", "direction", "currentCostume"];
+    let updated = false;
+
+    properties.forEach((prop) => {
+      if (sprite[prop] !== spriteRecord[prop]) {
+        spriteRecord[prop] = sprite[prop];
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      spriteRecord["records"].push({
+        x: sprite.x,
+        y: sprite.y,
+        direction: sprite.direction,
+        currentCostume: sprite.currentCostume,
+      });
+    }
+  }
+
+  async start() {
+    this.testcase = new this.TestCase(this);
+    this.loadSprite();
+    this.vm.greenFlag();
+    var ele = document.getElementById("result");
+    await this.testcase.start(function (name, result, msg) {
+      if (result) {
+        ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg} 成功</h3>`;
+      } else {
+        ele.innerHTML += `<h3 style="background-color:#ffaaaa">${name}: 測試 ${msg} 失敗</h3>`;
+      }
+    });
+  }
+}
+
+
+
+# index.html
 <style>
     #main {
         display: flex;
@@ -132,3 +260,8 @@
         btnGroup.style['display'] = "";
     </script>
 </body>
+
+===
+我載入一個 .sb3 檔案，裡面有一個sprite會自動左右移動，你修改monitorClonesUpdate方法，
+將新增加的 target 物件，偵測 x,y 座標是否有改變
+# 用中文回答

@@ -35,18 +35,45 @@ class Judge {
           records: [],
         };
         this.registerObservers(target);
+        this.monitorClonesUpdate(target);
       }
     });
   }
 
+  monitorClonesUpdate(target) {
+    var self = this;
+    var clones = target.sprite.clones;
+    var clonesProxy = new Proxy(clones, {
+      set: function (clones, property, value, receiver) {
+        var target = clones.slice(-1)[0];
+        if (typeof target == "undefined")
+          return Reflect.set(clones, property, value, receiver);
+        self.sprites[target.id] = {
+          target: target,
+          name: target.sprite.name,
+          id: target.id,
+          x: target.x,
+          y: target.y,
+          direction: target.direction,
+          currentCostume: target.currentCostume,
+          records: [],
+        };
+        self.registerObservers(target);
+        return Reflect.set(clones, property, value, receiver);
+      },
+    });
+    target.sprite.clones = clonesProxy;
+  }
+
   registerObservers(target) {
-    this.monitorProperty(target, 'x', true);
-    this.monitorProperty(target, 'y', true);
-    this.monitorProperty(target, 'direction');
-    this.monitorProperty(target, 'currentCostume');
+    this.monitorProperty(target, "x", true);
+    this.monitorProperty(target, "y", true);
+    this.monitorProperty(target, "direction");
+    this.monitorProperty(target, "currentCostume");
   }
 
   monitorProperty(target, propName, isCoordinate = false) {
+    //console.log(">>>",target,"propName:",propName);
     const judge = this;
     let originalValue = target[propName];
     Object.defineProperty(target, propName, {
@@ -55,16 +82,15 @@ class Judge {
       },
       set: function (newValue) {
         if (isCoordinate) {
-          // Trigger update only if the integer part changes
           if (Math.floor(originalValue) !== Math.floor(newValue)) {
             originalValue = newValue;
-            judge.onUpdate(this);
+            judge.onUpdate(target);
           } else {
-            originalValue = newValue; // Still update the value but do not trigger
+            originalValue = newValue; // 仍然更新值但不触发
           }
         } else {
           originalValue = newValue;
-          judge.onUpdate(this);
+          judge.onUpdate(target);
         }
       },
       configurable: true,
@@ -73,10 +99,9 @@ class Judge {
 
   onUpdate(sprite) {
     const spriteRecord = this.sprites[sprite.id];
-    const properties = ['x', 'y', 'direction', 'currentCostume'];
+    const properties = ["x", "y", "direction", "currentCostume"];
     let updated = false;
-
-    properties.forEach(prop => {
+    properties.forEach((prop) => {
       if (sprite[prop] !== spriteRecord[prop]) {
         spriteRecord[prop] = sprite[prop];
         updated = true;
@@ -88,7 +113,7 @@ class Judge {
         x: sprite.x,
         y: sprite.y,
         direction: sprite.direction,
-        currentCostume: sprite.currentCostume
+        currentCostume: sprite.currentCostume,
       });
     }
   }
