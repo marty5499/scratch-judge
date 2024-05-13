@@ -90,9 +90,9 @@
             script.src = `./stage/${projectFileName}.js`;
             script.onload = () => {
                 fetch(`./stage/${projectFileName}.sb3`).then(response => response.arrayBuffer()).then(projectData => {
-                    var judge = new Judge(vm, window.TestCase);
                     vm.start();
                     vm.loadProject(projectData).then(async () => {
+                        var judge = new Judge(vm, window.TestCase);
                         await judge.start();
                     }).catch(error => {
                         console.error('Failed to load or start the project:', error);

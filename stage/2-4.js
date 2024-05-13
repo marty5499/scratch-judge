@@ -42,7 +42,7 @@ window.TestCase = class TestCase {
   async case01() {
     //action
     this.judge.press("ArrowRight", 300);
-    await this.judge.delay(500);
+    await this.judge.delay(600);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
@@ -58,13 +58,13 @@ window.TestCase = class TestCase {
   async case02() {
     //action
     this.judge.press("ArrowLeft", 200);
-    await this.judge.delay(500);
+    await this.judge.delay(400);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
     console.log("case02:", values);
-    this.callback("case02", values[13]["x"] <= -10, "移動到左側");
+    this.callback("case02", values[values.length - 1]["x"] <= -10, "移動到左側");
     sprite["records"] = [];
   }
 
@@ -72,7 +72,7 @@ window.TestCase = class TestCase {
   async case03() {
     //action
     this.judge.press("d", 200);
-    await this.judge.delay(500);
+    await this.judge.delay(400);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];

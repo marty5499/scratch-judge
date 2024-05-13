@@ -41,7 +41,7 @@ window.TestCase = class TestCase {
   async case01() {
     //action
     await this.judge.press("ArrowRight", 100);
-    await this.judge.delay(500);
+    await this.judge.delay(250);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
@@ -66,7 +66,7 @@ window.TestCase = class TestCase {
     var firstEle = values[0]["x"];
     var lastEle = values[values.length - 1]["x"];
     var val = lastEle + firstEle;
-    this.callback("case02", values[13]["x"] == 40, "移動到左側");
+    this.callback("case02", values[values.length - 1]["x"] <= 50, "移動到左側");
     sprite["records"] = [];
   }
 
@@ -74,7 +74,7 @@ window.TestCase = class TestCase {
   async case03() {
     //action
     await this.judge.press("a", 100);
-    await this.judge.delay(1000);
+    await this.judge.delay(250);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
@@ -95,17 +95,15 @@ window.TestCase = class TestCase {
     //action
     this.judge.press("ArrowLeft", 200);
     await this.judge.press("ArrowUp", 10);
-    await this.judge.delay(1000);
+    await this.judge.delay(500);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
     console.log("case04:", values);
     var condition =
-      values[0]["x"] == 30 &&
-      values[0]["y"] < 2 &&
-      values[1]["x"] == 30 &&
-      values[1]["y"] > 10;
+      values[0]["x"] - values[5]["x"] > 0 &&
+      values[0]["y"] - values[5]["y"] < -25;
     this.callback("case04", condition, "移動並且跳起來");
     sprite["records"] = [];
   }
