@@ -36,6 +36,7 @@ class Judge {
           records: [],
         };
         this.registerObservers(target);
+        this.monitorClonesUpdate(target);
       }
     });
   }
@@ -43,18 +44,29 @@ class Judge {
   monitorClonesUpdate(target) {
     var self = this;
     var clones = target.sprite.clones;
-    // 使用 Proxy 來創建一個可監控的代理陣列
     var clonesProxy = new Proxy(clones, {
-      set: function (target, property, value, receiver) {
-        // impl...
-        return true;
+      set: function (clones, property, value, receiver) {
+        var target = clones.slice(-1)[0];
+        if (typeof target == "undefined")
+          return Reflect.set(clones, property, value, receiver);
+        self.sprites[target.id] = {
+          target: target,
+          name: target.sprite.name,
+          id: target.id,
+          x: target.x,
+          y: target.y,
+          direction: target.direction,
+          currentCostume: target.currentCostume,
+          records: [],
+        };
+        self.registerObservers(target);
+        return Reflect.set(clones, property, value, receiver);
       },
     });
     target.sprite.clones = clonesProxy;
   }
 
   registerObservers(target) {
-    this.monitorClonesUpdate(target);
     this.monitorProperty(target, "x", true);
     this.monitorProperty(target, "y", true);
     this.monitorProperty(target, "direction");
@@ -62,7 +74,7 @@ class Judge {
   }
 
   monitorProperty(target, propName, isCoordinate = false) {
-    console.log(">>>",target,"propName:",propName);
+    //console.log(">>>",target,"propName:",propName);
     const judge = this;
     let originalValue = target[propName];
     Object.defineProperty(target, propName, {
@@ -73,13 +85,13 @@ class Judge {
         if (isCoordinate) {
           if (Math.floor(originalValue) !== Math.floor(newValue)) {
             originalValue = newValue;
-            judge.onUpdate(this);
+            judge.onUpdate(target);
           } else {
             originalValue = newValue; // 仍然更新值但不触发
           }
         } else {
           originalValue = newValue;
-          judge.onUpdate(this);
+          judge.onUpdate(target);
         }
       },
       configurable: true,
@@ -90,7 +102,6 @@ class Judge {
     const spriteRecord = this.sprites[sprite.id];
     const properties = ["x", "y", "direction", "currentCostume"];
     let updated = false;
-
     properties.forEach((prop) => {
       if (sprite[prop] !== spriteRecord[prop]) {
         spriteRecord[prop] = sprite[prop];
@@ -262,6 +273,8 @@ class Judge {
 </body>
 
 ===
-我載入一個 .sb3 檔案，裡面有一個sprite會自動左右移動，你修改monitorClonesUpdate方法，
-將新增加的 target 物件，偵測 x,y 座標是否有改變
-# 用中文回答
+我正在寫一個程式 judge.js + index.html 使用了 Scratch-VM ，可以用來載入 .sb3檔案，
+然後執行 .sb3 檔案，紀錄 .sb3檔案中每個 sprite 的物件資訊，目的是用來判斷該 .sb3檔案
+是否有滿足題目要求。例如有一個角色從左側移動到右側，或角色是否有切換造型。
+
+你先看完程式碼準備好，我要問你一些問題

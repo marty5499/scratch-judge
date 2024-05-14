@@ -10,13 +10,23 @@ window.TestCase = class TestCase {
 
   // 向右移動0.5秒，最後x座標要大於原來的x座標
   async case01() {
-    //check
+    const startTime = Date.now();
     await this.judge.delay(500);
     var key = Object.keys(this.judge.sprites)[1];
     var sprite = this.judge.sprites[key];
-    console.log(">>>",sprite['records']);
-    // 假設 sprite.target.sprite.clones 已經是一個存在的陣列
-    this.callback("case01", true, "NPC 移動");
+    const endTime = Date.now();
+    const records = sprite['records'].filter(record => record.timestamp >= startTime && record.timestamp <= endTime);
+
+    if (records.length > 0) {
+      const startX = records[0].x;
+      const maxX = Math.max(...records.map(record => record.x));
+      console.log(">>>", sprite['records']);
+      this.callback("case01", maxX > startX, "NPC 移動");
+    } else {
+      console.log("No records found within the time range");
+      this.callback("case01", false, "NPC 移動");
+    }
+    
     sprite["records"] = [];
   }
 };

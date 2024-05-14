@@ -18,7 +18,7 @@ class Judge {
   }
 
   async delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, parseInt(ms * window.runSpeed)));
   }
 
   loadSprite() {
@@ -73,7 +73,6 @@ class Judge {
   }
 
   monitorProperty(target, propName, isCoordinate = false) {
-    //console.log(">>>",target,"propName:",propName);
     const judge = this;
     let originalValue = target[propName];
     Object.defineProperty(target, propName, {
@@ -101,6 +100,7 @@ class Judge {
     const spriteRecord = this.sprites[sprite.id];
     const properties = ["x", "y", "direction", "currentCostume"];
     let updated = false;
+    const timestamp = Date.now(); // 添加时间戳
     properties.forEach((prop) => {
       if (sprite[prop] !== spriteRecord[prop]) {
         spriteRecord[prop] = sprite[prop];
@@ -114,6 +114,7 @@ class Judge {
         y: sprite.y,
         direction: sprite.direction,
         currentCostume: sprite.currentCostume,
+        timestamp: timestamp, // 添加时间戳记录
       });
     }
   }

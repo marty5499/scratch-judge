@@ -1,36 +1,42 @@
-<style>
-    #main {
-        display: flex;
-        align-items: start;
-        justify-content: space-around;
-    }
+<!DOCTYPE html>
+<html lang="en">
 
-    #test {
-        flex: 0 0 auto;
-        margin-right: 20px;
-        border: 3px solid #ffa500;
-    }
-
-    #list {
-        flex: 1 1 auto;
-        background-color: #f4f4f4;
-        padding: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    button {
-        width: 100px;
-        height: 24px;
-        font-size: 16px;
-        margin: 2px;
-    }
-</style>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch VM Example</title>
+    <style>
+        #main {
+            display: flex;
+            align-items: start;
+            justify-content: space-around;
+        }
 
+        #test {
+            flex: 0 0 auto;
+            margin-right: 20px;
+            border: 3px solid #ffa500;
+        }
+
+        #list {
+            flex: 1 1 auto;
+            background-color: #f4f4f4;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            width: 100px;
+            height: 24px;
+            font-size: 16px;
+            margin: 2px;
+        }
+    </style>
 </head>
+
 <body>
-    <h2><a href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">EGame Scratch 課程規劃</a>
-    </h2>
+    <h2><a href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">EGame
+            Scratch 課程規劃</a></h2>
     <div id="container">
         <div id="main">
             <canvas id="test" width="640" height="480" style="width: 480px;"></canvas>
@@ -90,6 +96,21 @@
             });
         });
 
+        // Slow down the VM by controlling the frame rate
+        const frameRate = 50; // Adjust the frame rate (frames per second)
+        const originalStep = vm.runtime._step;
+        let lastTime = 0;
+        window.frameRate = frameRate;
+        window.runSpeed = 100.0 / frameRate;
+
+        vm.runtime._step = function (time) {
+            if (time - lastTime > 1000 / frameRate) {
+                lastTime = time;
+                originalStep.call(vm.runtime, time);
+            }
+            requestAnimationFrame(vm.runtime._step.bind(vm.runtime));
+        };
+
         function loadProject(projectFileName) {
             var script = document.createElement('script');
             script.src = `./stage/${projectFileName}.js`;
@@ -132,3 +153,5 @@
         btnGroup.style['display'] = "";
     </script>
 </body>
+
+</html>

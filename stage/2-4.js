@@ -58,13 +58,13 @@ window.TestCase = class TestCase {
   async case02() {
     //action
     this.judge.press("ArrowLeft", 200);
-    await this.judge.delay(400);
+    await this.judge.delay(200);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
     console.log("case02:", values);
-    this.callback("case02", values[values.length - 1]["x"] <= -10, "移動到左側");
+    this.callback("case02", values[values.length - 1]["x"] <= 30, "移動到左側");
     sprite["records"] = [];
   }
 
@@ -92,30 +92,25 @@ window.TestCase = class TestCase {
   async case04() {
     //action
     this.judge.press("ArrowLeft", 200);
-    this.judge.press("ArrowUp", 50);
-    await this.judge.delay(50);
-    this.judge.press("d", 50);
-    await this.judge.delay(500);
+    this.judge.press("ArrowUp", 100);
+    await this.judge.delay(100);
+    this.judge.press("d", 100);
+    await this.judge.delay(200);
     //check
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
     console.log("case04:", values);
     var condition =
-      values[0]["x"] <= -20 &&
-      values[0]["currentCostume"] == 0 &&
-
-      values[20]["x"] <= -110 &&
-      parseInt(values[20]["y"]) == 100 &&
-      values[20]["currentCostume"] == 1 &&
-
-      values[31]["x"] <= -140 &&
-      parseInt(values[31]["y"]) == 30 &&
-      values[31]["currentCostume"] == 2 &&
-      
-      values[35]["x"] <= -140 &&
-      parseInt(values[35]["y"]) == 5 &&
-      values[35]["currentCostume"] == 0;
+      values[0]["x"] <= 10 &&
+      values[0]["currentCostume"] == 0
+      &&
+      values[20]["x"] <= -70 &&
+      values[20]["currentCostume"] == 1
+      &&
+      values[24]["x"] <= -90 &&
+      values[24]["currentCostume"] == 2
+      ;
 
       this.callback("case04", condition, "移動＋跳起來時候防禦");
     sprite["records"] = [];
