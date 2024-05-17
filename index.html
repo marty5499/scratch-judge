@@ -96,15 +96,19 @@
             });
         });
 
-        // Slow down the VM by controlling the frame rate
-        const frameRate = 50; // Adjust the frame rate (frames per second)
+        window.frameRate = 60; // 初始幀率 (每秒幀數)
         const originalStep = vm.runtime._step;
         let lastTime = 0;
-        window.frameRate = frameRate;
-        window.runSpeed = 100.0 / frameRate;
+        
+        window.runSpeed = 100.0 / window.frameRate;
+        
+        function setFrameRate(newFrameRate) {
+            window.frameRate = newFrameRate;
+            window.runSpeed = 100.0 / window.frameRate;
+        }
 
         vm.runtime._step = function (time) {
-            if (time - lastTime > 1000 / frameRate) {
+            if (time - lastTime >= 1000 / window.frameRate) {
                 lastTime = time;
                 originalStep.call(vm.runtime, time);
             }

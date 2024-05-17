@@ -39,6 +39,7 @@ window.TestCase = class TestCase {
     var costumeB = sprite.target.currentCostume;
     await this.judge.delay(200);
     var costumeC = sprite.target.currentCostume;
+    console.log("case01:", sprite["records"]);
     this.callback(
       "case01",
       costumeA == costumeC && costumeA != costumeB,
@@ -55,6 +56,7 @@ window.TestCase = class TestCase {
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
+    console.log("case02:", values);
     var firstEle = values[0]["x"];
     var lastEle = values[values.length - 1]["x"];
     var val = lastEle - firstEle;
@@ -71,6 +73,7 @@ window.TestCase = class TestCase {
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
+    console.log("case03:", values);
     var ele = values[values.length - 1];
     this.callback(
       "case03",

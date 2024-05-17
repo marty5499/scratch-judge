@@ -47,6 +47,7 @@ window.TestCase = class TestCase {
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
+    console.log("case01:", values);
     var firstEle = values[0]["x"];
     var lastEle = values[values.length - 1]["x"];
     var val = lastEle - firstEle;
@@ -105,8 +106,8 @@ window.TestCase = class TestCase {
       values[0]["x"] <= 10 &&
       values[0]["currentCostume"] == 0
       &&
-      values[20]["x"] <= -70 &&
-      values[20]["currentCostume"] == 1
+      values[16]["x"] <= -70 &&
+      values[16]["currentCostume"] == 1
       &&
       values[24]["x"] <= -90 &&
       values[24]["currentCostume"] == 2

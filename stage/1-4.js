@@ -35,7 +35,7 @@ window.TestCase = class TestCase {
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
-    console.log("value:", values);
+    console.log("case01:", values);
     var condition =
       values[9]["y"] == 100 && //跳到最高處
       values[0]["currentCostume"] == 1 && //換跳耀造型

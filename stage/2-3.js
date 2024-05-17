@@ -79,11 +79,11 @@ window.TestCase = class TestCase {
     var key = Object.keys(this.judge.sprites)[0];
     var sprite = this.judge.sprites[key];
     var values = sprite["records"];
-    //console.log("value:", values);
+    console.log("case03:", values);
     var condition =
       values[0]["currentCostume"] == 0 && //換回造型 (接續case02)
-      values[1]["currentCostume"] == 1 && //防禦造型1
-      values[2]["currentCostume"] == 2 && //防禦造型2
+      values[1]["currentCostume"] == 1 && //攻擊造型1
+      values[2]["currentCostume"] == 2 && //攻擊造型2
       values[3]["currentCostume"] == 0; //換回造型
 
     this.callback("case03", condition, "攻擊造型切換");
