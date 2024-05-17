@@ -31,7 +31,7 @@ window.TestCase = class TestCase {
     }
     const costumeChanges =
       new Set(records.map((record) => record.currentCostume)).size > 1;
-    this.callback("case01", isSequential && costumeChanges, "NPC 移動");
+    this.callback("case01", isSequential && costumeChanges, "NPC 移動並切換造型");
     sprite["records"] = [];
   }
 };
