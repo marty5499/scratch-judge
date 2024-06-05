@@ -3,6 +3,7 @@ class Judge {
     this.vm = vm;
     this.TestCase = TestCase;
     this.sprites = {};
+    this.questionHandlerRegistered = false; // 添加這個旗標
   }
 
   async press(key, ms) {
@@ -119,11 +120,37 @@ class Judge {
     }
   }
 
+  registerQuestionHandler() {
+    if (!this.questionHandlerRegistered) {
+      this.vm.runtime.on('QUESTION', (question) => {
+        const existingInput = document.getElementById('scratchInput');
+        if (existingInput) {
+          document.body.removeChild(existingInput);
+        }
+
+        const inputElement = document.createElement('input');
+        inputElement.type = 'text';
+        inputElement.id = 'scratchInput';
+        document.body.appendChild(inputElement);
+
+        inputElement.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const answer = inputElement.value;
+            this.vm.runtime.emit('ANSWER', answer);
+            document.body.removeChild(inputElement);
+          }
+        });
+      });
+      this.questionHandlerRegistered = true;
+    }
+  }
+
   async start() {
     this.testcase = new this.TestCase(this);
     this.loadSprite();
     this.vm.greenFlag();
     var ele = document.getElementById("result");
+    this.registerQuestionHandler(); // 確保只註冊一次事件處理器
     await this.testcase.start(function (name, result, msg) {
       if (result) {
         ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg} 成功</h3>`;
