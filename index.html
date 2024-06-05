@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,10 +32,8 @@
         }
     </style>
 </head>
-
 <body>
-    <h2><a href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">EGame
-            Scratch 課程規劃</a></h2>
+    <h2><a href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">EGame Scratch 課程規劃</a></h2>
     <div id="container">
         <div id="main">
             <canvas id="test" width="640" height="480" style="width: 480px;"></canvas>
@@ -49,6 +46,7 @@
         </div>
         <input style='height:24px' type="text" id="projectFile" placeholder="Enter SB3 file name" value="1-1">
         <button id="loadProjectButton">讀取</button>
+        <button id="restartProjectButton" style="display:none;">重新執行</button>
         <div id="btnGroup" style="display: none;">
             <button onclick="setAndLoadProject('g-01')">01 你好世界.sb3</button>
             <button onclick="setAndLoadProject('g-02')">02 問答學堂.sb3</button>
@@ -128,8 +126,11 @@
                 fetch(`./stage/${projectFileName}.sb3`).then(response => response.arrayBuffer()).then(projectData => {
                     vm.start();
                     vm.loadProject(projectData).then(async () => {
+                        console.log("loadProject...");
                         var judge = new Judge(vm, window.TestCase);
+                        window.judge = judge; // 保存 judge 以便重新執行時使用
                         await judge.start();
+                        document.getElementById('restartProjectButton').style.display = '';
                     }).catch(error => {
                         console.error('Failed to load or start the project:', error);
                     });
@@ -160,8 +161,13 @@
                 loadProject(projectFileName);
             }
         });
+
+        document.getElementById('restartProjectButton').addEventListener('click', () => {
+            result.innerHTML = '';
+            window.judge.restart();
+        });
+
         btnGroup.style['display'] = "";
     </script>
 </body>
-
 </html>

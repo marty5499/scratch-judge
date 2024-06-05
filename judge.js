@@ -3,7 +3,7 @@ class Judge {
     this.vm = vm;
     this.TestCase = TestCase;
     this.sprites = {};
-    this.questionHandlerRegistered = false; // 添加這個旗標
+    this.questionHandlerRegistered = false;
   }
 
   async press(key, ms) {
@@ -41,6 +41,25 @@ class Judge {
         this.monitorClonesUpdate(target);
       }
     });
+  }
+
+  enterInput(text) {
+    const inputElement = document.getElementById("scratchInput");
+    if (inputElement) {
+      inputElement.value = text;
+
+      const event = new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        key: "Enter",
+        code: "Enter",
+        charCode: 13,
+        keyCode: 13,
+        which: 13,
+      });
+
+      inputElement.dispatchEvent(event);
+    }
   }
 
   monitorClonesUpdate(target) {
@@ -160,5 +179,12 @@ class Judge {
         ele.innerHTML += `<h3 style="background-color:#ffaaaa">${name}: 測試 ${msg} 失敗</h3>`;
       }
     });
+  }
+
+  async restart() {
+    this.vm.stopAll();
+    this.sprites = {};
+    this.loadSprite();
+    this.vm.greenFlag();
   }
 }

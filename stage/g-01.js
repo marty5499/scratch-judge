@@ -13,7 +13,7 @@ window.TestCase = class TestCase {
     await this.judge.delay(100);
     // 輸入字串到輸入框，並且按下 enter
     var inputName = parseInt(Math.random() * nameList.length);
-    this.enterInput(nameList[inputName]);
+    this.judge.enterInput(nameList[inputName]);
     await this.judge.delay(500); // 等待一秒以確保字串顯示
 
     let saidText = "";
@@ -32,22 +32,4 @@ window.TestCase = class TestCase {
     // sprite["records"] = [];
   }
 
-  enterInput(text) {
-    const inputElement = document.getElementById("scratchInput");
-    if (inputElement) {
-      inputElement.value = text;
-
-      const event = new KeyboardEvent("keydown", {
-        bubbles: true,
-        cancelable: true,
-        key: "Enter",
-        code: "Enter",
-        charCode: 13,
-        keyCode: 13,
-        which: 13,
-      });
-
-      inputElement.dispatchEvent(event);
-    }
-  }
 };
