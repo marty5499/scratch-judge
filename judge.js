@@ -19,7 +19,9 @@ class Judge {
   }
 
   async delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, parseInt(ms * window.runSpeed)));
+    return new Promise((resolve) =>
+      setTimeout(resolve, parseInt(ms * window.runSpeed))
+    );
   }
 
   loadSprite() {
@@ -122,21 +124,21 @@ class Judge {
 
   registerQuestionHandler() {
     if (!this.questionHandlerRegistered) {
-      this.vm.runtime.on('QUESTION', (question) => {
-        const existingInput = document.getElementById('scratchInput');
+      this.vm.runtime.on("QUESTION", (question) => {
+        const existingInput = document.getElementById("scratchInput");
         if (existingInput) {
           document.body.removeChild(existingInput);
         }
 
-        const inputElement = document.createElement('input');
-        inputElement.type = 'text';
-        inputElement.id = 'scratchInput';
+        const inputElement = document.createElement("input");
+        inputElement.type = "text";
+        inputElement.id = "scratchInput";
         document.body.appendChild(inputElement);
 
-        inputElement.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
+        inputElement.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
             const answer = inputElement.value;
-            this.vm.runtime.emit('ANSWER', answer);
+            this.vm.runtime.emit("ANSWER", answer);
             document.body.removeChild(inputElement);
           }
         });
