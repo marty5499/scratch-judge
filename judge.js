@@ -6,6 +6,26 @@ class Judge {
     this.questionHandlerRegistered = false;
   }
 
+  async clickSprite(target) {
+    // 模擬鼠標按下
+    this.vm.postIOData("mouse", {
+      x: target.x,
+      y: target.y,
+      isDown: true,
+    });
+
+    await this.delay(100); // 等待一點時間
+
+    // 模擬鼠標釋放
+    this.vm.postIOData("mouse", {
+      x: target.x,
+      y: target.y,
+      isDown: false,
+    });
+
+    console.log("Mouse event posted to VM:", target.x, target.y);
+  }
+
   async press(key, ms) {
     this.vm.postIOData("keyboard", {
       key: key,

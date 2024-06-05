@@ -4,6 +4,7 @@ class Judge {
     this.vm = vm;
     this.TestCase = TestCase;
     this.sprites = {};
+    this.questionHandlerRegistered = false;
   }
 
   async press(key, ms) {
@@ -19,7 +20,9 @@ class Judge {
   }
 
   async delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, parseInt(ms * window.runSpeed)));
+    return new Promise((resolve) =>
+      setTimeout(resolve, parseInt(ms * window.runSpeed))
+    );
   }
 
   loadSprite() {
@@ -39,6 +42,25 @@ class Judge {
         this.monitorClonesUpdate(target);
       }
     });
+  }
+
+  enterInput(text) {
+    const inputElement = document.getElementById("scratchInput");
+    if (inputElement) {
+      inputElement.value = text;
+
+      const event = new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        key: "Enter",
+        code: "Enter",
+        charCode: 13,
+        keyCode: 13,
+        which: 13,
+      });
+
+      inputElement.dispatchEvent(event);
+    }
   }
 
   monitorClonesUpdate(target) {
@@ -120,11 +142,37 @@ class Judge {
     }
   }
 
+  registerQuestionHandler() {
+    if (!this.questionHandlerRegistered) {
+      this.vm.runtime.on("QUESTION", (question) => {
+        const existingInput = document.getElementById("scratchInput");
+        if (existingInput) {
+          document.body.removeChild(existingInput);
+        }
+
+        const inputElement = document.createElement("input");
+        inputElement.type = "text";
+        inputElement.id = "scratchInput";
+        document.body.appendChild(inputElement);
+
+        inputElement.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            const answer = inputElement.value;
+            this.vm.runtime.emit("ANSWER", answer);
+            document.body.removeChild(inputElement);
+          }
+        });
+      });
+      this.questionHandlerRegistered = true;
+    }
+  }
+
   async start() {
     this.testcase = new this.TestCase(this);
     this.loadSprite();
     this.vm.greenFlag();
     var ele = document.getElementById("result");
+    this.registerQuestionHandler(); // 確保只註冊一次事件處理器
     await this.testcase.start(function (name, result, msg) {
       if (result) {
         ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg} 成功</h3>`;
@@ -133,14 +181,21 @@ class Judge {
       }
     });
   }
+
+  async restart() {
+    this.vm.stopAll();
+    this.sprites = {};
+    this.loadSprite();
+    this.vm.greenFlag();
+  }
 }
+
 
 
 
 # index.html
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -173,10 +228,8 @@ class Judge {
         }
     </style>
 </head>
-
 <body>
-    <h2><a href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">EGame
-            Scratch 課程規劃</a></h2>
+    <h2><a href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">EGame Scratch 課程規劃</a></h2>
     <div id="container">
         <div id="main">
             <canvas id="test" width="640" height="480" style="width: 480px;"></canvas>
@@ -189,6 +242,7 @@ class Judge {
         </div>
         <input style='height:24px' type="text" id="projectFile" placeholder="Enter SB3 file name" value="1-1">
         <button id="loadProjectButton">讀取</button>
+        <button id="restartProjectButton" style="display:none;">重新執行</button>
         <div id="btnGroup" style="display: none;">
             <button onclick="setAndLoadProject('g-01')">01 你好世界.sb3</button>
             <button onclick="setAndLoadProject('g-02')">02 問答學堂.sb3</button>
@@ -268,8 +322,11 @@ class Judge {
                 fetch(`./stage/${projectFileName}.sb3`).then(response => response.arrayBuffer()).then(projectData => {
                     vm.start();
                     vm.loadProject(projectData).then(async () => {
+                        console.log("loadProject...");
                         var judge = new Judge(vm, window.TestCase);
+                        window.judge = judge; // 保存 judge 以便重新執行時使用
                         await judge.start();
+                        document.getElementById('restartProjectButton').style.display = '';
                     }).catch(error => {
                         console.error('Failed to load or start the project:', error);
                     });
@@ -300,10 +357,15 @@ class Judge {
                 loadProject(projectFileName);
             }
         });
+
+        document.getElementById('restartProjectButton').addEventListener('click', () => {
+            result.innerHTML = '';
+            window.judge.restart();
+        });
+
         btnGroup.style['display'] = "";
     </script>
 </body>
-
 </html>
 
 ===
@@ -314,5 +376,4 @@ class Judge {
 你先看完程式碼準備好，我要問你一些問題
 
 
-###### 等AI回覆後
 
