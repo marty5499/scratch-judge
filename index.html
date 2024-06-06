@@ -125,6 +125,8 @@
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
+            console.log("canvas width:", canvas.width, canvas.height);
+            console.log("canvas click:", x, y);
             vm.postIOData('mouse', {
                 x: x,
                 y: y,
@@ -155,7 +157,7 @@
                     vm.start();
                     vm.loadProject(projectData).then(async () => {
                         console.log("loadProject...");
-                        var judge = new Judge(vm, window.TestCase);
+                        var judge = new Judge(canvas, vm, window.TestCase);
                         window.judge = judge; // 保存 judge 以便重新執行時使用
                         await judge.start();
                         document.getElementById('restartProjectButton').style.display = '';

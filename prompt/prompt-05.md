@@ -1,10 +1,51 @@
 # judge.js
 class Judge {
-  constructor(vm, TestCase) {
+  constructor(canvas, vm, TestCase) {
+    this.canvas = canvas;
     this.vm = vm;
     this.TestCase = TestCase;
     this.sprites = {};
     this.questionHandlerRegistered = false;
+  }
+
+  async clickSprite(target) {
+    // 获取 canvas 和其位置
+    const canvas = this.canvas;
+    const rect = canvas.getBoundingClientRect();
+    // 获取 target 的宽度和高度
+    const costume = target.sprite.costumes[target.currentCostume];
+    const width =
+      costume.bitmapResolution === 2
+        ? costume.rotationCenterX * 2
+        : costume.rotationCenterX;
+    const height =
+      costume.bitmapResolution === 2
+        ? costume.rotationCenterY * 2
+        : costume.rotationCenterY;
+    // 计算相对于 canvas 的坐标
+    const x =
+      rect.left + (target.x + canvas.width / 2) * (rect.width / canvas.width); // 将 Scratch 的坐标转换为 canvas 坐标，并调整到中心点
+    const y =
+      rect.top +
+      (canvas.width / 2 - target.y - height * 1.5) *
+        (rect.height / canvas.height); // 将 Scratch 的坐标转换为 canvas 坐标，并调整到中心点
+    // 模拟鼠标按下
+    this.vm.postIOData("mouse", {
+      x: x,
+      y: y,
+      canvasWidth: canvas.width,
+      canvasHeight: canvas.height,
+      isDown: true,
+    });
+    await this.delay(100); // 等待一点时间
+    // 模拟鼠标释放
+    this.vm.postIOData("mouse", {
+      x: x,
+      y: y,
+      canvasWidth: canvas.width,
+      canvasHeight: canvas.height,
+      isDown: false,
+    });
   }
 
   async press(key, ms) {
@@ -194,8 +235,10 @@ class Judge {
 
 
 # index.html
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -228,8 +271,10 @@ class Judge {
         }
     </style>
 </head>
+
 <body>
-    <h2><a href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">EGame Scratch 課程規劃</a></h2>
+    <h2><a href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">EGame
+            Scratch 課程規劃</a></h2>
     <div id="container">
         <div id="main">
             <canvas id="test" width="640" height="480" style="width: 480px;"></canvas>
@@ -282,6 +327,24 @@ class Judge {
         vm.attachV2SVGAdapter(new ScratchSVGRenderer.SVGRenderer());
         vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
 
+        let lastTime = 0;
+        window.frameRate = 60; // 初始幀率 (每秒幀數)
+        const originalStep = vm.runtime._step;
+        window.runSpeed = 100.0 / window.frameRate;
+
+        function setFrameRate(newFrameRate) {
+            window.frameRate = newFrameRate;
+            window.runSpeed = 100.0 / window.frameRate;
+        }
+
+        vm.runtime._step = function (time) {
+            if (time - lastTime >= 1000 / window.frameRate) {
+                lastTime = time;
+                originalStep.call(vm.runtime, time);
+            }
+            requestAnimationFrame(vm.runtime._step.bind(vm.runtime));
+        };
+
         document.addEventListener('keydown', e => {
             vm.postIOData('keyboard', {
                 key: e.key,
@@ -296,24 +359,33 @@ class Judge {
             });
         });
 
-        window.frameRate = 60; // 初始幀率 (每秒幀數)
-        const originalStep = vm.runtime._step;
-        let lastTime = 0;
-        
-        window.runSpeed = 100.0 / window.frameRate;
-        
-        function setFrameRate(newFrameRate) {
-            window.frameRate = newFrameRate;
-            window.runSpeed = 100.0 / window.frameRate;
-        }
+        canvas.addEventListener('mousedown', e => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            console.log("canvas width:", canvas.width, canvas.height);
+            console.log("canvas click:", x, y);
+            vm.postIOData('mouse', {
+                x: x,
+                y: y,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                isDown: true
+            });
+        });
 
-        vm.runtime._step = function (time) {
-            if (time - lastTime >= 1000 / window.frameRate) {
-                lastTime = time;
-                originalStep.call(vm.runtime, time);
-            }
-            requestAnimationFrame(vm.runtime._step.bind(vm.runtime));
-        };
+        canvas.addEventListener('mouseup', e => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            vm.postIOData('mouse', {
+                x: x,
+                y: y,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                isDown: false
+            });
+        });
 
         function loadProject(projectFileName) {
             var script = document.createElement('script');
@@ -323,7 +395,7 @@ class Judge {
                     vm.start();
                     vm.loadProject(projectData).then(async () => {
                         console.log("loadProject...");
-                        var judge = new Judge(vm, window.TestCase);
+                        var judge = new Judge(canvas, vm, window.TestCase);
                         window.judge = judge; // 保存 judge 以便重新執行時使用
                         await judge.start();
                         document.getElementById('restartProjectButton').style.display = '';
@@ -366,6 +438,7 @@ class Judge {
         btnGroup.style['display'] = "";
     </script>
 </body>
+
 </html>
 
 ===

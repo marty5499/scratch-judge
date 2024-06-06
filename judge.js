@@ -1,5 +1,6 @@
 class Judge {
-  constructor(vm, TestCase) {
+  constructor(canvas, vm, TestCase) {
+    this.canvas = canvas;
     this.vm = vm;
     this.TestCase = TestCase;
     this.sprites = {};
@@ -7,23 +8,43 @@ class Judge {
   }
 
   async clickSprite(target) {
-    // 模擬鼠標按下
+    // 获取 canvas 和其位置
+    const canvas = this.canvas;
+    const rect = canvas.getBoundingClientRect();
+    // 获取 target 的宽度和高度
+    const costume = target.sprite.costumes[target.currentCostume];
+    const width =
+      costume.bitmapResolution === 2
+        ? costume.rotationCenterX * 2
+        : costume.rotationCenterX;
+    const height =
+      costume.bitmapResolution === 2
+        ? costume.rotationCenterY * 2
+        : costume.rotationCenterY;
+    // 计算相对于 canvas 的坐标
+    const x =
+      rect.left + (target.x + canvas.width / 2) * (rect.width / canvas.width); // 将 Scratch 的坐标转换为 canvas 坐标，并调整到中心点
+    const y =
+      rect.top +
+      (canvas.width / 2 - target.y - height * 1.5) *
+        (rect.height / canvas.height); // 将 Scratch 的坐标转换为 canvas 坐标，并调整到中心点
+    // 模拟鼠标按下
     this.vm.postIOData("mouse", {
-      x: target.x,
-      y: target.y,
+      x: x,
+      y: y,
+      canvasWidth: canvas.width,
+      canvasHeight: canvas.height,
       isDown: true,
     });
-
-    await this.delay(100); // 等待一點時間
-
-    // 模擬鼠標釋放
+    await this.delay(100); // 等待一点时间
+    // 模拟鼠标释放
     this.vm.postIOData("mouse", {
-      x: target.x,
-      y: target.y,
+      x: x,
+      y: y,
+      canvasWidth: canvas.width,
+      canvasHeight: canvas.height,
       isDown: false,
     });
-
-    console.log("Mouse event posted to VM:", target.x, target.y);
   }
 
   async press(key, ms) {
