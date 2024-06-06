@@ -121,12 +121,15 @@
             });
         });
 
+        function getMousePosition(event, rect) {
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            return { x, y };
+        }
+
         canvas.addEventListener('mousedown', e => {
             const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            console.log("canvas width:", canvas.width, canvas.height);
-            console.log("canvas click:", x, y);
+            const { x, y } = getMousePosition(e, rect);
             vm.postIOData('mouse', {
                 x: x,
                 y: y,
@@ -138,14 +141,25 @@
 
         canvas.addEventListener('mouseup', e => {
             const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            const { x, y } = getMousePosition(e, rect);
             vm.postIOData('mouse', {
                 x: x,
                 y: y,
                 canvasWidth: canvas.width,
                 canvasHeight: canvas.height,
                 isDown: false
+            });
+        });
+
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            const { x, y } = getMousePosition(e, rect);
+            vm.postIOData('mouse', {
+                x: x,
+                y: y,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                isDown: e.buttons === 1 // 如果按下滑鼠左鍵
             });
         });
 

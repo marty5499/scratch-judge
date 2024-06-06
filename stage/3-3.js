@@ -1,7 +1,7 @@
 window.TestCase = class TestCase {
   constructor(judge) {
-    this.judge = judge;
     setFrameRate(3);
+    this.judge = judge;
   }
 
   async start(callback) {
