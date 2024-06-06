@@ -6,6 +6,7 @@ class Judge {
     this.sprites = {};
     this.variables = {};
     this.collisions = new Set(); // 用於記錄已發生的碰撞
+    this.collisionCounts = {}; // 用於紀錄每個物件的碰撞次數
     this.questionHandlerRegistered = false;
     this.monitorVariableChanges();
   }
@@ -89,6 +90,7 @@ class Judge {
         };
         this.registerObservers(target);
         this.monitorClonesUpdate(target);
+        this.collisionCounts[target.sprite.name] = 0; // 初始化碰撞次數
       }
     });
   }
@@ -142,6 +144,7 @@ class Judge {
           records: [],
         };
         self.registerObservers(target);
+        self.collisionCounts[target.sprite.name] = 0; // 初始化碰撞次數
         return Reflect.set(clones, property, value, receiver);
       },
     });
@@ -266,6 +269,8 @@ class Judge {
               `Collision detected between ${spriteRecord.name} and ${otherSprite.name}`
             );
             this.collisions.add(collisionKey);
+            this.collisionCounts[spriteRecord.name]++;
+            this.collisionCounts[otherSprite.name]++;
             // 在這裡觸發碰撞事件
           } else if (
             !this.checkCollision(spriteRecord, otherSprite) &&
@@ -277,6 +282,10 @@ class Judge {
         }
       }
     }
+  }
+
+  collisionTimes(name) {
+    return this.collisionCounts[name] || 0;
   }
 
   registerQuestionHandler() {
@@ -322,6 +331,8 @@ class Judge {
   async restart() {
     this.vm.stopAll();
     this.sprites = {};
+    this.collisions = new Set(); // 重置碰撞記錄
+    this.collisionCounts = {}; // 重置碰撞次數
     this.loadSprite();
     this.vm.greenFlag();
   }

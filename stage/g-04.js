@@ -10,8 +10,9 @@ window.TestCase = class TestCase {
   }
 
   async case01() {
-    await this.judge.delay(2000);
-    var condition = this.judge.variables["愛心"]['records'].length >= 3;
-    this.callback("case01", condition, `分數變動三次以上` );
+    await this.judge.delay(5000);
+    var condition1 = this.judge.variables["愛心"]["records"].length >= 10;
+    var condition2 = this.judge.collisionCounts["Robot"] >= 10;
+    this.callback("case01", condition1 && condition2, `分數與碰撞10次以上`);
   }
 };
