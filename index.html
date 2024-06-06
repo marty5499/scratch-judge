@@ -35,8 +35,7 @@
 </head>
 
 <body>
-    <h2><a href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">EGame
-            Scratch 課程規劃</a></h2>
+    <h2><a href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">EGame Scratch 課程規劃</a></h2>
     <div id="container">
         <div id="main">
             <canvas id="test" width="640" height="480" style="width: 480px;"></canvas>
@@ -175,6 +174,34 @@
                         window.judge = judge; // 保存 judge 以便重新執行時使用
                         await judge.start();
                         document.getElementById('restartProjectButton').style.display = '';
+
+                        // 添加变量检查和调试代码
+                        const stage = vm.runtime.getTargetForStage();
+                        if (stage) {
+                            console.log('Variables:', stage.variables);
+
+                            // 遍历所有变量，确保它们被标记为可见
+                            for (let variableId in stage.variables) {
+                                let variable = stage.variables[variableId];
+                                if (variable.visible === false) {
+                                    variable.visible = true;
+                                    console.log(`Variable ${variable.name} set to visible`);
+                                }
+                            }
+
+                            // 手动触发变量显示更新
+                            vm.runtime.requestRedraw();
+
+                            // 添加变量显示更新逻辑
+                            vm.runtime.on('VARIABLE_CHANGED', (data) => {
+                                console.log(`Variable ${data.name} changed to ${data.newValue}`);
+                                vm.runtime.requestRedraw();
+                            });
+
+                        } else {
+                            console.error('Failed to get stage.');
+                        }
+
                     }).catch(error => {
                         console.error('Failed to load or start the project:', error);
                     });

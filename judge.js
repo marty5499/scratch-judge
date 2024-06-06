@@ -220,6 +220,36 @@ class Judge {
         ele.innerHTML += `<h3 style="background-color:#ffaaaa">${name}: 測試 ${msg} 失敗</h3>`;
       }
     });
+    const monitors = this.vm.runtime.monitorBlocks._blocks;
+    this.showVariableMonitor("愛心");
+  }
+
+  // 新增這個方法來顯示變數監視器
+  showVariableMonitor(variableName) {
+    const monitors = this.vm.runtime.monitorBlocks._blocks;
+    for (let id in monitors) {
+      var monitor = monitors[id];
+      if (
+        monitor.opcode === "data_variable" &&
+        monitor.fields.VARIABLE.value === variableName
+      ) {
+        /*
+        monitor.isMonitored = true;
+        monitor.visible = true;
+        monitor.x = 10; // 設定變數監視器的位置，可以根據需要調整
+        monitor.y = 10;
+        // 使用 monitor 的 fields 屬性
+        this.vm.runtime.requestUpdateMonitor({
+          id: monitor.id,
+          fields: monitor.fields,
+          isMonitored: monitor.isMonitored,
+          visible: monitor.visible,
+          x: monitor.x,
+          y: monitor.y,
+        });
+        //*/
+      }
+    }
   }
 
   async restart() {
