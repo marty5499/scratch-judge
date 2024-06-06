@@ -9,19 +9,8 @@ window.TestCase = class TestCase {
   }
 
   async case01() {
-    const monitors = this.judge.vm.runtime.monitorBlocks._blocks;
-    this.judge.showVariableMonitor("愛心");
-
-    await this.judge.delay(500); // 等待一秒以確保字串顯示
-    this.judge.showVariableMonitor("愛心");
-    await this.judge.delay(500); // 等待一秒以確保字串顯示
-    this.judge.showVariableMonitor("愛心");
-    await this.judge.delay(500); // 等待一秒以確保字串顯示
-    this.judge.showVariableMonitor("愛心");
-    await this.judge.delay(500); // 等待一秒以確保字串顯示
-    this.judge.showVariableMonitor("愛心");
-
-    this.callback("case01", true, `game`);
-    // sprite["records"] = [];
+    await this.judge.delay(2000);
+    var condition = this.judge.variables["愛心"]['records'].length >= 3;
+    this.callback("case01", condition, `分數變動三次以上` );
   }
 };

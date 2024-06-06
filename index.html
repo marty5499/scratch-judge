@@ -165,32 +165,6 @@
             });
         });
 
-
-        function monitorVariableChanges(stage, vm) {
-            for (let variableId in stage.variables) {
-                let variable = stage.variables[variableId];
-                let originalValue = variable.value;
-
-                Object.defineProperty(variable, 'value', {
-                    get: function () {
-                        return originalValue;
-                    },
-                    set: function (newValue) {
-                        if (originalValue !== newValue) {
-                            originalValue = newValue;
-                            vm.emit('VARIABLE_CHANGED', {
-                                name: variable.name,
-                                newValue: newValue
-                            });
-                            console.log(`Variable ${variable.name} changed to ${newValue}`);
-                        }
-                    },
-                    configurable: true
-                });
-            }
-        }
-
-
         function loadProject(projectFileName) {
             var script = document.createElement('script');
             script.src = `./stage/${projectFileName}.js`;
@@ -202,21 +176,7 @@
                         var judge = new Judge(canvas, vm, window.TestCase);
                         window.judge = judge; // Save judge instance for later use
                         document.getElementById('restartProjectButton').style.display = '';
-
-                        const stage = vm.runtime.getTargetForStage();
-                        if (stage) {
-                            console.log('Variables:', stage.variables);
-                            // Monitor variable changes and manually trigger events
-                            monitorVariableChanges(stage, vm);
-                            // Bind VARIABLE_CHANGED event listener
-                            vm.runtime.on('VARIABLE_CHANGED', (data) => {
-                                console.log(`Variable ${data.name} changed to ${data.newValue}`);
-                            });
-
-                            await judge.start();
-                        } else {
-                            console.error('Failed to get stage.');
-                        }
+                        await judge.start();
                     }).catch(error => {
                         console.error('Failed to load or start the project:', error);
                     });

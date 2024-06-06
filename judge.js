@@ -4,7 +4,9 @@ class Judge {
     this.vm = vm;
     this.TestCase = TestCase;
     this.sprites = {};
+    this.variables = {};
     this.questionHandlerRegistered = false;
+    this.monitorVariableChanges();
   }
 
   async clickSprite(target) {
@@ -159,6 +161,34 @@ class Judge {
     });
   }
 
+  monitorVariableChanges() {
+    var vm = this.vm;
+    var self = this;
+    const stage = this.vm.runtime.getTargetForStage();
+    for (let variableId in stage.variables) {
+      let variable = stage.variables[variableId];
+      variable.records = [];
+      this.variables[variable.name] = variable;
+      let originalValue = variable.value;
+      Object.defineProperty(variable, "value", {
+        get: function () {
+          return originalValue;
+        },
+        set: function (newValue) {
+          if (originalValue !== newValue) {
+            originalValue = newValue;
+            self.variables[variable.name]['records'].push({
+              value: newValue,
+              timestamp: Date.now(),
+            });
+            console.log(`Variable ${variable.name} changed to ${newValue}`);
+          }
+        },
+        configurable: true,
+      });
+    }
+  }
+
   onUpdate(sprite) {
     const spriteRecord = this.sprites[sprite.id];
     const properties = ["x", "y", "direction", "currentCostume"];
@@ -220,20 +250,6 @@ class Judge {
         ele.innerHTML += `<h3 style="background-color:#ffaaaa">${name}: 測試 ${msg} 失敗</h3>`;
       }
     });
-  }
-
-  // 新增這個方法來顯示變數監視器
-  showVariableMonitor(variableName) {
-    const monitors = this.vm.runtime.monitorBlocks._blocks;
-    for (let id in monitors) {
-      var monitor = monitors[id];
-      if (
-        monitor.opcode === "data_variable" &&
-        monitor.fields.VARIABLE.value === variableName
-      ) {
-        console.log("欄位：",monitor);
-      }
-    }
   }
 
   async restart() {
