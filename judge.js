@@ -5,15 +5,14 @@ class Judge {
     this.TestCase = TestCase;
     this.sprites = {};
     this.variables = {};
+    this.collisions = new Set(); // 用於記錄已發生的碰撞
     this.questionHandlerRegistered = false;
     this.monitorVariableChanges();
   }
 
   async clickSprite(target) {
-    // 获取 canvas 和其位置
     const canvas = this.canvas;
     const rect = canvas.getBoundingClientRect();
-    // 获取 target 的宽度和高度
     const costume = target.sprite.costumes[target.currentCostume];
     const width =
       costume.bitmapResolution === 2
@@ -23,14 +22,12 @@ class Judge {
       costume.bitmapResolution === 2
         ? costume.rotationCenterY * 2
         : costume.rotationCenterY;
-    // 计算相对于 canvas 的坐标
     const x =
-      rect.left + (target.x + canvas.width / 2) * (rect.width / canvas.width); // 将 Scratch 的坐标转换为 canvas 坐标，并调整到中心点
+      rect.left + (target.x + canvas.width / 2) * (rect.width / canvas.width);
     const y =
       rect.top +
       (canvas.width / 2 - target.y - height * 1.5) *
-        (rect.height / canvas.height); // 将 Scratch 的坐标转换为 canvas 坐标，并调整到中心点
-    // 模拟鼠标按下
+        (rect.height / canvas.height);
     this.vm.postIOData("mouse", {
       x: x,
       y: y,
@@ -38,8 +35,7 @@ class Judge {
       canvasHeight: canvas.height,
       isDown: true,
     });
-    await this.delay(100); // 等待一点时间
-    // 模拟鼠标释放
+    await this.delay(100);
     this.vm.postIOData("mouse", {
       x: x,
       y: y,
@@ -70,12 +66,23 @@ class Judge {
   loadSprite() {
     this.vm.runtime.targets.forEach((target) => {
       if (!target.isStage) {
+        const costume = target.sprite.costumes[target.currentCostume];
+        const width =
+          costume.bitmapResolution === 2
+            ? costume.rotationCenterX * 2
+            : costume.rotationCenterX;
+        const height =
+          costume.bitmapResolution === 2
+            ? costume.rotationCenterY * 2
+            : costume.rotationCenterY;
         this.sprites[target.id] = {
           target: target,
           name: target.sprite.name,
           id: target.id,
           x: target.x,
           y: target.y,
+          width: width,
+          height: height,
           direction: target.direction,
           currentCostume: target.currentCostume,
           records: [],
@@ -113,12 +120,23 @@ class Judge {
         var target = clones.slice(-1)[0];
         if (typeof target == "undefined")
           return Reflect.set(clones, property, value, receiver);
+        const costume = target.sprite.costumes[target.currentCostume];
+        const width =
+          costume.bitmapResolution === 2
+            ? costume.rotationCenterX * 2
+            : costume.rotationCenterX;
+        const height =
+          costume.bitmapResolution === 2
+            ? costume.rotationCenterY * 2
+            : costume.rotationCenterY;
         self.sprites[target.id] = {
           target: target,
           name: target.sprite.name,
           id: target.id,
           x: target.x,
           y: target.y,
+          width: width,
+          height: height,
           direction: target.direction,
           currentCostume: target.currentCostume,
           records: [],
@@ -150,7 +168,7 @@ class Judge {
             originalValue = newValue;
             judge.onUpdate(target);
           } else {
-            originalValue = newValue; // 仍然更新值但不触发
+            originalValue = newValue;
           }
         } else {
           originalValue = newValue;
@@ -177,7 +195,7 @@ class Judge {
         set: function (newValue) {
           if (originalValue !== newValue) {
             originalValue = newValue;
-            self.variables[variable.name]['records'].push({
+            self.variables[variable.name]["records"].push({
               value: newValue,
               timestamp: Date.now(),
             });
@@ -189,11 +207,34 @@ class Judge {
     }
   }
 
+  checkCollision(sprite1, sprite2) {
+    const rect1 = {
+      x: sprite1.x - sprite1.width / 2,
+      y: sprite1.y - sprite1.height / 2,
+      width: sprite1.width,
+      height: sprite1.height,
+    };
+
+    const rect2 = {
+      x: sprite2.x - sprite2.width / 2,
+      y: sprite2.y - sprite2.height / 2,
+      width: sprite2.width,
+      height: sprite2.height,
+    };
+
+    return (
+      rect1.x < rect2.x + rect2.width &&
+      rect1.x + rect1.width > rect2.x &&
+      rect1.y < rect2.y + rect2.height &&
+      rect1.y + rect1.height > rect2.y
+    );
+  }
+
   onUpdate(sprite) {
     const spriteRecord = this.sprites[sprite.id];
     const properties = ["x", "y", "direction", "currentCostume"];
     let updated = false;
-    const timestamp = Date.now(); // 添加时间戳
+    const timestamp = Date.now();
     properties.forEach((prop) => {
       if (sprite[prop] !== spriteRecord[prop]) {
         spriteRecord[prop] = sprite[prop];
@@ -207,8 +248,34 @@ class Judge {
         y: sprite.y,
         direction: sprite.direction,
         currentCostume: sprite.currentCostume,
-        timestamp: timestamp, // 添加时间戳记录
+        timestamp: timestamp,
       });
+
+      for (const spriteId in this.sprites) {
+        const otherSprite = this.sprites[spriteId];
+        if (
+          otherSprite.id !== sprite.id &&
+          spriteRecord.name !== otherSprite.name
+        ) {
+          const collisionKey = `${sprite.id}-${otherSprite.id}`;
+          if (
+            this.checkCollision(spriteRecord, otherSprite) &&
+            !this.collisions.has(collisionKey)
+          ) {
+            console.log(
+              `Collision detected between ${spriteRecord.name} and ${otherSprite.name}`
+            );
+            this.collisions.add(collisionKey);
+            // 在這裡觸發碰撞事件
+          } else if (
+            !this.checkCollision(spriteRecord, otherSprite) &&
+            this.collisions.has(collisionKey)
+          ) {
+            // 如果兩個物體不再碰撞，移除碰撞記錄，允許未來再次觸發
+            this.collisions.delete(collisionKey);
+          }
+        }
+      }
     }
   }
 
@@ -242,7 +309,7 @@ class Judge {
     this.loadSprite();
     this.vm.greenFlag();
     var ele = document.getElementById("result");
-    this.registerQuestionHandler(); // 確保只註冊一次事件處理器
+    this.registerQuestionHandler();
     await this.testcase.start(function (name, result, msg) {
       if (result) {
         ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg} 成功</h3>`;

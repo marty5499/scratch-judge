@@ -1,5 +1,6 @@
 window.TestCase = class TestCase {
   constructor(judge) {
+    //setFrameRate(2);
     this.judge = judge;
   }
 

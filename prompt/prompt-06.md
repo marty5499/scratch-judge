@@ -5,14 +5,15 @@ class Judge {
     this.vm = vm;
     this.TestCase = TestCase;
     this.sprites = {};
+    this.variables = {};
+    this.collisions = new Set(); // 用於記錄已發生的碰撞
     this.questionHandlerRegistered = false;
+    this.monitorVariableChanges();
   }
 
   async clickSprite(target) {
-    // 获取 canvas 和其位置
     const canvas = this.canvas;
     const rect = canvas.getBoundingClientRect();
-    // 获取 target 的宽度和高度
     const costume = target.sprite.costumes[target.currentCostume];
     const width =
       costume.bitmapResolution === 2
@@ -22,14 +23,12 @@ class Judge {
       costume.bitmapResolution === 2
         ? costume.rotationCenterY * 2
         : costume.rotationCenterY;
-    // 计算相对于 canvas 的坐标
     const x =
-      rect.left + (target.x + canvas.width / 2) * (rect.width / canvas.width); // 将 Scratch 的坐标转换为 canvas 坐标，并调整到中心点
+      rect.left + (target.x + canvas.width / 2) * (rect.width / canvas.width);
     const y =
       rect.top +
       (canvas.width / 2 - target.y - height * 1.5) *
-        (rect.height / canvas.height); // 将 Scratch 的坐标转换为 canvas 坐标，并调整到中心点
-    // 模拟鼠标按下
+        (rect.height / canvas.height);
     this.vm.postIOData("mouse", {
       x: x,
       y: y,
@@ -37,8 +36,7 @@ class Judge {
       canvasHeight: canvas.height,
       isDown: true,
     });
-    await this.delay(100); // 等待一点时间
-    // 模拟鼠标释放
+    await this.delay(100);
     this.vm.postIOData("mouse", {
       x: x,
       y: y,
@@ -69,12 +67,23 @@ class Judge {
   loadSprite() {
     this.vm.runtime.targets.forEach((target) => {
       if (!target.isStage) {
+        const costume = target.sprite.costumes[target.currentCostume];
+        const width =
+          costume.bitmapResolution === 2
+            ? costume.rotationCenterX * 2
+            : costume.rotationCenterX;
+        const height =
+          costume.bitmapResolution === 2
+            ? costume.rotationCenterY * 2
+            : costume.rotationCenterY;
         this.sprites[target.id] = {
           target: target,
           name: target.sprite.name,
           id: target.id,
           x: target.x,
           y: target.y,
+          width: width,
+          height: height,
           direction: target.direction,
           currentCostume: target.currentCostume,
           records: [],
@@ -112,12 +121,23 @@ class Judge {
         var target = clones.slice(-1)[0];
         if (typeof target == "undefined")
           return Reflect.set(clones, property, value, receiver);
+        const costume = target.sprite.costumes[target.currentCostume];
+        const width =
+          costume.bitmapResolution === 2
+            ? costume.rotationCenterX * 2
+            : costume.rotationCenterX;
+        const height =
+          costume.bitmapResolution === 2
+            ? costume.rotationCenterY * 2
+            : costume.rotationCenterY;
         self.sprites[target.id] = {
           target: target,
           name: target.sprite.name,
           id: target.id,
           x: target.x,
           y: target.y,
+          width: width,
+          height: height,
           direction: target.direction,
           currentCostume: target.currentCostume,
           records: [],
@@ -149,7 +169,7 @@ class Judge {
             originalValue = newValue;
             judge.onUpdate(target);
           } else {
-            originalValue = newValue; // 仍然更新值但不触发
+            originalValue = newValue;
           }
         } else {
           originalValue = newValue;
@@ -160,11 +180,62 @@ class Judge {
     });
   }
 
+  monitorVariableChanges() {
+    var vm = this.vm;
+    var self = this;
+    const stage = this.vm.runtime.getTargetForStage();
+    for (let variableId in stage.variables) {
+      let variable = stage.variables[variableId];
+      variable.records = [];
+      this.variables[variable.name] = variable;
+      let originalValue = variable.value;
+      Object.defineProperty(variable, "value", {
+        get: function () {
+          return originalValue;
+        },
+        set: function (newValue) {
+          if (originalValue !== newValue) {
+            originalValue = newValue;
+            self.variables[variable.name]["records"].push({
+              value: newValue,
+              timestamp: Date.now(),
+            });
+            console.log(`Variable ${variable.name} changed to ${newValue}`);
+          }
+        },
+        configurable: true,
+      });
+    }
+  }
+
+  checkCollision(sprite1, sprite2) {
+    const rect1 = {
+      x: sprite1.x - sprite1.width / 2,
+      y: sprite1.y - sprite1.height / 2,
+      width: sprite1.width,
+      height: sprite1.height,
+    };
+
+    const rect2 = {
+      x: sprite2.x - sprite2.width / 2,
+      y: sprite2.y - sprite2.height / 2,
+      width: sprite2.width,
+      height: sprite2.height,
+    };
+
+    return (
+      rect1.x < rect2.x + rect2.width &&
+      rect1.x + rect1.width > rect2.x &&
+      rect1.y < rect2.y + rect2.height &&
+      rect1.y + rect1.height > rect2.y
+    );
+  }
+
   onUpdate(sprite) {
     const spriteRecord = this.sprites[sprite.id];
     const properties = ["x", "y", "direction", "currentCostume"];
     let updated = false;
-    const timestamp = Date.now(); // 添加时间戳
+    const timestamp = Date.now();
     properties.forEach((prop) => {
       if (sprite[prop] !== spriteRecord[prop]) {
         spriteRecord[prop] = sprite[prop];
@@ -178,8 +249,34 @@ class Judge {
         y: sprite.y,
         direction: sprite.direction,
         currentCostume: sprite.currentCostume,
-        timestamp: timestamp, // 添加时间戳记录
+        timestamp: timestamp,
       });
+
+      for (const spriteId in this.sprites) {
+        const otherSprite = this.sprites[spriteId];
+        if (
+          otherSprite.id !== sprite.id &&
+          spriteRecord.name !== otherSprite.name
+        ) {
+          const collisionKey = `${sprite.id}-${otherSprite.id}`;
+          if (
+            this.checkCollision(spriteRecord, otherSprite) &&
+            !this.collisions.has(collisionKey)
+          ) {
+            console.log(
+              `Collision detected between ${spriteRecord.name} and ${otherSprite.name}`
+            );
+            this.collisions.add(collisionKey);
+            // 在這裡觸發碰撞事件
+          } else if (
+            !this.checkCollision(spriteRecord, otherSprite) &&
+            this.collisions.has(collisionKey)
+          ) {
+            // 如果兩個物體不再碰撞，移除碰撞記錄，允許未來再次觸發
+            this.collisions.delete(collisionKey);
+          }
+        }
+      }
     }
   }
 
@@ -213,7 +310,7 @@ class Judge {
     this.loadSprite();
     this.vm.greenFlag();
     var ele = document.getElementById("result");
-    this.registerQuestionHandler(); // 確保只註冊一次事件處理器
+    this.registerQuestionHandler();
     await this.testcase.start(function (name, result, msg) {
       if (result) {
         ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg} 成功</h3>`;
@@ -221,20 +318,6 @@ class Judge {
         ele.innerHTML += `<h3 style="background-color:#ffaaaa">${name}: 測試 ${msg} 失敗</h3>`;
       }
     });
-  }
-
-  // 新增這個方法來顯示變數監視器
-  showVariableMonitor(variableName) {
-    const monitors = this.vm.runtime.monitorBlocks._blocks;
-    for (let id in monitors) {
-      var monitor = monitors[id];
-      if (
-        monitor.opcode === "data_variable" &&
-        monitor.fields.VARIABLE.value === variableName
-      ) {
-        console.log("欄位：",monitor);
-      }
-    }
   }
 
   async restart() {
@@ -276,7 +359,7 @@ class Judge {
         }
 
         button {
-            width: 150px;
+            width: 120px;
             height: 24px;
             font-size: 16px;
             margin: 2px;
@@ -422,40 +505,11 @@ class Judge {
                 fetch(`./stage/${projectFileName}.sb3`).then(response => response.arrayBuffer()).then(projectData => {
                     vm.start();
                     vm.loadProject(projectData).then(async () => {
-                        console.log("loadProject...");
+                        console.log("Project loaded...");
                         var judge = new Judge(canvas, vm, window.TestCase);
-                        window.judge = judge; // 保存 judge 以便重新執行時使用
+                        window.judge = judge; // Save judge instance for later use
                         document.getElementById('restartProjectButton').style.display = '';
-
-                        // 添加变量检查和调试代码
-                        const stage = vm.runtime.getTargetForStage();
-                        if (stage) {
-                            console.log('Variables:', stage.variables);
-
-                            // 遍历所有变量，确保它们被标记为可见
-                            for (let variableId in stage.variables) {
-                                let variable = stage.variables[variableId];
-                                if (variable.visible === false) {
-                                    variable.visible = true;
-                                    console.log(`Variable ${variable.name} set to visible`);
-                                }
-                            }
-
-                            // 手动触发变量显示更新
-                            vm.runtime.requestRedraw();
-
-                            // 添加变量显示更新逻辑
-                            vm.runtime.on('VARIABLE_CHANGED', (data) => {
-                                console.log(`Variable ${data.name} changed to ${data.newValue}`);
-                                vm.runtime.requestRedraw();
-                            });
-
-                        } else {
-                            console.error('Failed to get stage.');
-                        }
-
                         await judge.start();
-
                     }).catch(error => {
                         console.error('Failed to load or start the project:', error);
                     });
