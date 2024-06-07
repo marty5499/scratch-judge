@@ -353,7 +353,7 @@ class Judge {
     this.vm.greenFlag();
     var ele = document.getElementById("result");
     this.registerQuestionHandler();
-    this.registerPenHandlers(); // 新增這行來註冊筆事件處理器
+    //this.registerPenHandlers(); // 新增這行來註冊筆事件處理器
     await this.testcase.start(function (name, result, msg) {
       if (result) {
         ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg} 成功</h3>`;
