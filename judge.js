@@ -217,26 +217,27 @@ class Judge {
     this.vm.runtime._step = function (time) {
       for (const target of self.vm.runtime.targets) {
         if (target.isStage) continue;
-        console.log("target.drawable:", target);
-        const penState = target.drawable.penState;
-        if (penState.penDown) {
-          if (!self.penEvents.includes('penDown')) {
-            self.penEvents.push({ event: 'penDown', timestamp: Date.now() });
-            console.log('Pen down event');
+        const penAttributes = target.drawable.penAttributes;
+        if (penAttributes) {
+          if (penAttributes.penDown) {
+            if (!self.penEvents.includes('penDown')) {
+              self.penEvents.push({ event: 'penDown', timestamp: Date.now() });
+              console.log('Pen down event');
+            }
+          } else {
+            if (!self.penEvents.includes('penUp')) {
+              self.penEvents.push({ event: 'penUp', timestamp: Date.now() });
+              console.log('Pen up event');
+            }
           }
-        } else {
-          if (!self.penEvents.includes('penUp')) {
-            self.penEvents.push({ event: 'penUp', timestamp: Date.now() });
-            console.log('Pen up event');
+          if (penAttributes.color) {
+            self.penEvents.push({ event: 'setPenColor', timestamp: Date.now(), color: penAttributes.color });
+            console.log('Set pen color event', penAttributes.color);
           }
-        }
-        if (penState.penAttributes && penState.penAttributes.color) {
-          self.penEvents.push({ event: 'setPenColor', timestamp: Date.now(), color: penState.penAttributes.color });
-          console.log('Set pen color event', penState.penAttributes.color);
-        }
-        if (penState.penAttributes && penState.penAttributes.size) {
-          self.penEvents.push({ event: 'setPenSize', timestamp: Date.now(), size: penState.penAttributes.size });
-          console.log('Set pen size event', penState.penAttributes.size);
+          if (penAttributes.size) {
+            self.penEvents.push({ event: 'setPenSize', timestamp: Date.now(), size: penAttributes.size });
+            console.log('Set pen size event', penAttributes.size);
+          }
         }
       }
       originalStep.call(self.vm.runtime, time);
