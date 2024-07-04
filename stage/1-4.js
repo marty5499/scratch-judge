@@ -29,19 +29,23 @@ window.TestCase = class TestCase {
 
   // 向上跳，看y座標是否有改變
   async case01() {
-    //action
-    await this.judge.press("ArrowUp", 500);
-    //check
-    var key = Object.keys(this.judge.sprites)[0];
-    var sprite = this.judge.sprites[key];
-    var values = sprite["records"];
-    console.log("case01:", values);
-    var condition =
-      values[9]["y"] == 100 && //跳到最高處
-      values[0]["currentCostume"] == 1 && //換跳耀造型
-      values[20]["currentCostume"] == 0; //換回造型
+    try {
+      //action
+      await this.judge.press("ArrowUp", 500);
+      //check
+      var key = Object.keys(this.judge.sprites)[0];
+      var sprite = this.judge.sprites[key];
+      var values = sprite["records"];
+      console.log("case01:", values);
+      var condition =
+        values[9]["y"] == 100 && //跳到最高處
+        values[0]["currentCostume"] == 1 && //換跳耀造型
+        values[20]["currentCostume"] == 0; //換回造型
 
-    this.callback("case01", condition, "換姿勢跳起來");
-    sprite["records"] = [];
+      this.callback("case01", condition, "換姿勢跳起來");
+      sprite["records"] = [];
+    } catch (e) {
+      this.callback("case01", false, "換姿勢跳起來");
+    }
   }
 };
