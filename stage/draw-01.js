@@ -1,7 +1,7 @@
-window.TestCase = class TestCase {
+window.TestCase = class TestCase extends DrawTestCase {
   constructor(judge) {
+    super(judge);
     this.judge = judge;
-    //window.frameRate = 3;
   }
 
   async start(callback) {
@@ -10,8 +10,11 @@ window.TestCase = class TestCase {
   }
 
   async case01() {
-    await this.judge.delay(500); // 等待一秒以確保字串顯示
-    console.log("sprite (x,y):",this.judge.sprites);
-    this.callback("case01", true, `畫圖`);
+    var self = this;
+    await this.judge.delay(1500);
+    await this.captureRenderArea("./stage_draw/達克_函數.png", function (result) {
+      console.log("result.rawMisMatchPercentage:", result);
+      self.callback("case01", result.rawMisMatchPercentage == 0, `畫圖`);
+    });
   }
 };
