@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas 正方形</title>
+</head>
+<body>
+    <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;"></canvas>
+
+    <script>
+        // 取得 canvas 元素
+        var canvas = document.getElementById("myCanvas");
+        console.log(canvas);
+        var ctx = canvas.getContext("2d");
+
+        // 設定正方形的參數
+        var squareSize = 100;
+        var startX = (canvas.width - squareSize) / 2;
+        var startY = (canvas.height - squareSize) / 2;
+
+        // 繪製正方形
+        ctx.fillStyle = "#FF0000"; // 正方形顏色
+        ctx.fillRect(startX, startY, squareSize, squareSize);
+    </script>
+</body>
+</html>
