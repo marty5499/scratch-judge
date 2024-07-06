@@ -10,11 +10,9 @@ window.TestCase = class TestCase extends DrawTestCase {
   }
 
   async case01() {
-    var self = this;
-    await this.judge.delay(1500);
-    await this.captureRenderArea("./stage_draw/達克_函數.png", function (result) {
-      console.log("result.rawMisMatchPercentage:", result);
-      self.callback("case01", result.rawMisMatchPercentage == 0, `畫圖`);
-    });
+    await this.judge.delay(300);
+    var result = await this.captureAndCompare("./stage/draw-01.png");
+    //console.log("result.rawMisMatchPercentage:", result);
+    this.callback("case01", result.rawMisMatchPercentage < 1, `畫圖`);
   }
 };

@@ -175,7 +175,7 @@
                 fetch(`./stage/${projectFileName}.sb3`).then(response => response.arrayBuffer()).then(projectData => {
                     vm.start();
                     vm.loadProject(projectData).then(async () => {
-                        console.log("Project loaded...");
+                        //console.log("Project loaded...");
                         var judge = new Judge(canvas, vm, window.TestCase);
                         window.judge = judge; // Save judge instance for later use
                         document.getElementById('restartProjectButton').style.display = '';
