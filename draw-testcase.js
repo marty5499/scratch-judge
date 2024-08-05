@@ -2,6 +2,7 @@ class DrawTestCase {
   constructor(judge) {
     //window.frameRate = 3;
     this.vm = judge.vm;
+    this.judge = judge;
     this.render = judge.vm.runtime.renderer;
   }
 
@@ -131,5 +132,9 @@ class DrawTestCase {
     return new Promise((resolve) =>
       setTimeout(resolve, parseInt(ms * window.runSpeed))
     );
+  }
+
+  onCompleted(scriptSrc) {
+    console.log(scriptSrc + "run completed.");
   }
 }

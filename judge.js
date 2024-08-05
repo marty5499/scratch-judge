@@ -1,7 +1,8 @@
 class Judge {
-  constructor(canvas, vm, TestCase) {
+  constructor(canvas, vm, scriptSrc, TestCase) {
     this.canvas = canvas;
     this.vm = vm;
+    this.scriptSrc = scriptSrc;
     this.TestCase = TestCase;
     this.sprites = {};
     this.variables = {};
@@ -220,23 +221,31 @@ class Judge {
         const penAttributes = target.drawable.penAttributes;
         if (penAttributes) {
           if (penAttributes.penDown) {
-            if (!self.penEvents.includes('penDown')) {
-              self.penEvents.push({ event: 'penDown', timestamp: Date.now() });
-              console.log('Pen down event');
+            if (!self.penEvents.includes("penDown")) {
+              self.penEvents.push({ event: "penDown", timestamp: Date.now() });
+              console.log("Pen down event");
             }
           } else {
-            if (!self.penEvents.includes('penUp')) {
-              self.penEvents.push({ event: 'penUp', timestamp: Date.now() });
-              console.log('Pen up event');
+            if (!self.penEvents.includes("penUp")) {
+              self.penEvents.push({ event: "penUp", timestamp: Date.now() });
+              console.log("Pen up event");
             }
           }
           if (penAttributes.color) {
-            self.penEvents.push({ event: 'setPenColor', timestamp: Date.now(), color: penAttributes.color });
-            console.log('Set pen color event', penAttributes.color);
+            self.penEvents.push({
+              event: "setPenColor",
+              timestamp: Date.now(),
+              color: penAttributes.color,
+            });
+            console.log("Set pen color event", penAttributes.color);
           }
           if (penAttributes.size) {
-            self.penEvents.push({ event: 'setPenSize', timestamp: Date.now(), size: penAttributes.size });
-            console.log('Set pen size event', penAttributes.size);
+            self.penEvents.push({
+              event: "setPenSize",
+              timestamp: Date.now(),
+              size: penAttributes.size,
+            });
+            console.log("Set pen size event", penAttributes.size);
           }
         }
       }
@@ -353,6 +362,7 @@ class Judge {
     this.vm.greenFlag();
     var ele = document.getElementById("result");
     this.registerQuestionHandler();
+    this.checkIfExecutionComplete(this);
     //this.registerPenHandlers(); // 新增這行來註冊筆事件處理器
     await this.testcase.start(function (name, result, msg) {
       if (result) {
@@ -371,5 +381,15 @@ class Judge {
     this.penEvents = []; // 重置筆事件
     this.loadSprite();
     this.vm.greenFlag();
+  }
+
+  checkIfExecutionComplete(self) {
+    if (vm.runtime.threads.length === 0) {
+      const ansPNG = self.scriptSrc.replace(".js", ".png");
+      self.testcase.onCompleted(ansPNG);
+    } else {
+      // 如果還有程序在執行，過一段時間再檢查一次
+      setTimeout(() => self.checkIfExecutionComplete(self), 100); // 每100毫秒檢查一次
+    }
   }
 }

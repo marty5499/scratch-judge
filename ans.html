@@ -31,19 +31,23 @@
             font-size: 16px;
             margin: 2px;
         }
-        .stageLabel{
-            display: inline-block; 
+
+        .stageLabel {
+            display: inline-block;
             width: 160px;
         }
+
         .tab-container {
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .tabs {
             display: flex;
             border-bottom: 1px solid #ccc;
         }
+
         .tab {
             padding: 10px 20px;
             cursor: pointer;
@@ -54,25 +58,30 @@
             margin-right: 5px;
             transition: background-color 0.3s;
         }
+
         .tab:not(.tab-active):hover {
             background-color: #f1f1f1;
         }
+
         .tab-active {
             background-color: #d2e3f4;
             border-bottom: 1px solid #fff;
         }
+
         .tab-content {
             display: none;
             padding: 20px;
             text-align: left;
         }
+
         .active {
             display: block;
         }
+
         .stageLabel {
             display: inline-block;
             width: 160px;
-        }        
+        }
     </style>
 </head>
 
@@ -97,7 +106,7 @@
                 <div class="tab" onclick="showTab('tab2')">高互動關卡(二)</div>
                 <div class="tab" onclick="showTab('tab3')">個人冒險</div>
             </div>
-            
+
             <div id="tab1" class="tab-content active">
                 <button onclick="setAndLoadProject('g-01')">01 你好世界</button>
                 <button onclick="setAndLoadProject('g-02')">02 問答學堂</button>
@@ -105,12 +114,11 @@
                 <button onclick="setAndLoadProject('g-04')">04 收集愛心</button>
                 <button onclick="setAndLoadProject('g-05')">05 魔法世界</button>
             </div>
-            
+
             <div id="tab2" class="tab-content">
-                <div><a
-                target="_blank"
-                href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF"
-              >Egame Scratch 腳本</a></div>
+                <div><a target="_blank"
+                        href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">Egame
+                        Scratch 腳本</a></div>
                 <div>
                     <span class="stageLabel">Unit.1：故事的開端</span>
                     <button onclick="setAndLoadProject('1-1')">1-1</button>
@@ -133,169 +141,174 @@
                     <button onclick="setAndLoadProject('3-4')">3-4</button>
                 </div>
             </div>
-            
+
             <div id="tab3" class="tab-content">
                 <span class="stageLabel">5個 Scratch課程</span>
                 <button onclick="setAndLoadProject('draw-01')">函數</button>
+                <button onclick="setAndLoadProject('draw-02')">循序</button>
+                <button onclick="setAndLoadProject('draw-03')">古文明崩落</button>
+                <button onclick="setAndLoadProject('draw-04')">大雪花</button>
+
             </div>
         </div>
 
-    <script src="./scratch-vm.js"></script>
-    <script src="./scratch-storage.js"></script>
-    <script src="./scratch-svg-renderer.js"></script>
-    <script src="./scratch-render.js"></script>
-    <script src="./resemble.min.js"></script>
+        <script src="./scratch-vm.js"></script>
+        <script src="./scratch-storage.js"></script>
+        <script src="./scratch-svg-renderer.js"></script>
+        <script src="./scratch-render.js"></script>
+        <script src="./resemble.min.js"></script>
 
-    <script src="./draw-testcase.js"></script>
-    <script src="./judge.js"></script>
-    <script>
-        window.devicePixelRatio = 1;
-        var canvas = document.getElementById('test');
-        var render = new ScratchRender(canvas);
-        var vm = new VirtualMachine();
-        var storage = new ScratchStorage();
-        vm.attachStorage(storage);
-        vm.attachRenderer(render);
-        vm.attachV2SVGAdapter(new ScratchSVGRenderer.SVGRenderer());
-        vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
+        <script src="./draw-testcase.js"></script>
+        <script src="./judge.js"></script>
+        <script>
+            window.devicePixelRatio = 1;
+            var canvas = document.getElementById('test');
+            var render = new ScratchRender(canvas);
+            var vm = new VirtualMachine();
+            var storage = new ScratchStorage();
+            vm.attachStorage(storage);
+            vm.attachRenderer(render);
+            vm.attachV2SVGAdapter(new ScratchSVGRenderer.SVGRenderer());
+            vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
 
-        let lastTime = 0;
-        window.frameRate = 60; // 初始幀率 (每秒幀數)
-        const originalStep = vm.runtime._step;
-        window.runSpeed = 100.0 / window.frameRate;
-
-        function setFrameRate(newFrameRate) {
-            window.frameRate = newFrameRate;
+            let lastTime = 0;
+            window.frameRate = 60; // 初始幀率 (每秒幀數)
+            const originalStep = vm.runtime._step;
             window.runSpeed = 100.0 / window.frameRate;
-        }
 
-        vm.runtime._step = function (time) {
-            if (time - lastTime >= 1000 / window.frameRate) {
-                lastTime = time;
-                originalStep.call(vm.runtime, time);
+            function setFrameRate(newFrameRate) {
+                window.frameRate = newFrameRate;
+                window.runSpeed = 100.0 / window.frameRate;
             }
-            requestAnimationFrame(vm.runtime._step.bind(vm.runtime));
-        };
 
-        document.addEventListener('keydown', e => {
-            vm.postIOData('keyboard', {
-                key: e.key,
-                isDown: true
-            });
-        });
+            vm.runtime._step = function (time) {
+                if (time - lastTime >= 1000 / window.frameRate) {
+                    lastTime = time;
+                    originalStep.call(vm.runtime, time);
+                }
+                requestAnimationFrame(vm.runtime._step.bind(vm.runtime));
+            };
 
-        document.addEventListener('keyup', e => {
-            vm.postIOData('keyboard', {
-                key: e.key,
-                isDown: false
-            });
-        });
-
-        function getMousePosition(event, rect) {
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            return { x, y };
-        }
-
-        canvas.addEventListener('mousedown', e => {
-            const rect = canvas.getBoundingClientRect();
-            const { x, y } = getMousePosition(e, rect);
-            vm.postIOData('mouse', {
-                x: x,
-                y: y,
-                canvasWidth: canvas.width,
-                canvasHeight: canvas.height,
-                isDown: true
-            });
-        });
-
-        canvas.addEventListener('mouseup', e => {
-            const rect = canvas.getBoundingClientRect();
-            const { x, y } = getMousePosition(e, rect);
-            vm.postIOData('mouse', {
-                x: x,
-                y: y,
-                canvasWidth: canvas.width,
-                canvasHeight: canvas.height,
-                isDown: false
-            });
-        });
-
-        canvas.addEventListener('mousemove', e => {
-            const rect = canvas.getBoundingClientRect();
-            const { x, y } = getMousePosition(e, rect);
-            vm.postIOData('mouse', {
-                x: x,
-                y: y,
-                canvasWidth: canvas.width,
-                canvasHeight: canvas.height,
-                isDown: e.buttons === 1 // 如果按下滑鼠左鍵
-            });
-        });
-
-        function showTab(tabId) {
-            var tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(function(tab) {
-                tab.classList.remove('active');
-            });
-            document.getElementById(tabId).classList.add('active');
-
-            var tabButtons = document.querySelectorAll('.tab');
-            tabButtons.forEach(function(button) {
-                button.classList.remove('tab-active');
-            });
-            document.querySelector('[onclick="showTab(\'' + tabId + '\')"]').classList.add('tab-active');
-        }        
-
-        function loadProject(projectFileName) {
-            var script = document.createElement('script');
-            script.src = `./stage/${projectFileName}.js`;
-            script.onload = () => {
-                fetch(`./stage/${projectFileName}.sb3`).then(response => response.arrayBuffer()).then(projectData => {
-                    vm.start();
-                    vm.loadProject(projectData).then(async () => {
-                        //console.log("Project loaded...");
-                        var judge = new Judge(canvas, vm, window.TestCase);
-                        window.judge = judge; // Save judge instance for later use
-                        //document.getElementById('restartProjectButton').style.display = '';
-                        await judge.start();
-                    }).catch(error => {
-                        console.error('Failed to load or start the project:', error);
-                    });
-                }).catch(error => {
-                    console.error('Failed to fetch the .sb3 file:', error);
+            document.addEventListener('keydown', e => {
+                vm.postIOData('keyboard', {
+                    key: e.key,
+                    isDown: true
                 });
-            };
-            script.onerror = () => {
-                console.error('Failed to load the JS file:', error);
-            };
-            document.head.appendChild(script);
-        }
+            });
 
-        function setAndLoadProject(projectFileName) {
-            result.innerHTML = '';
-            document.getElementById('projectFile').innerHTML = projectFileName;
-            loadProject(projectFileName);
-        }
+            document.addEventListener('keyup', e => {
+                vm.postIOData('keyboard', {
+                    key: e.key,
+                    isDown: false
+                });
+            });
 
-        document.getElementById('loadProjectButton').addEventListener('click', () => {
-            var projectFileName = document.getElementById('projectFile').value;
-            loadProject(projectFileName);
-        });
+            function getMousePosition(event, rect) {
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                return { x, y };
+            }
 
-        document.getElementById('projectFile').addEventListener('keydown', e => {
-            if (e.key === 'Enter') {
-                var projectFileName = document.getElementById('projectFile').value;
+            canvas.addEventListener('mousedown', e => {
+                const rect = canvas.getBoundingClientRect();
+                const { x, y } = getMousePosition(e, rect);
+                vm.postIOData('mouse', {
+                    x: x,
+                    y: y,
+                    canvasWidth: canvas.width,
+                    canvasHeight: canvas.height,
+                    isDown: true
+                });
+            });
+
+            canvas.addEventListener('mouseup', e => {
+                const rect = canvas.getBoundingClientRect();
+                const { x, y } = getMousePosition(e, rect);
+                vm.postIOData('mouse', {
+                    x: x,
+                    y: y,
+                    canvasWidth: canvas.width,
+                    canvasHeight: canvas.height,
+                    isDown: false
+                });
+            });
+
+            canvas.addEventListener('mousemove', e => {
+                const rect = canvas.getBoundingClientRect();
+                const { x, y } = getMousePosition(e, rect);
+                vm.postIOData('mouse', {
+                    x: x,
+                    y: y,
+                    canvasWidth: canvas.width,
+                    canvasHeight: canvas.height,
+                    isDown: e.buttons === 1 // 如果按下滑鼠左鍵
+                });
+            });
+
+            function showTab(tabId) {
+                var tabs = document.querySelectorAll('.tab-content');
+                tabs.forEach(function (tab) {
+                    tab.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+
+                var tabButtons = document.querySelectorAll('.tab');
+                tabButtons.forEach(function (button) {
+                    button.classList.remove('tab-active');
+                });
+                document.querySelector('[onclick="showTab(\'' + tabId + '\')"]').classList.add('tab-active');
+            }
+
+            function loadProject(projectFileName) {
+                var script = document.createElement('script');
+                script.src = `./stage/${projectFileName}.js`;
+                script.onload = () => {
+                    fetch(`./stage/${projectFileName}.sb3`).then(response => response.arrayBuffer()).then(projectData => {
+                        vm.start();
+                        vm.loadProject(projectData).then(async () => {
+                            //console.log("Project loaded...");
+                            var judge = new Judge(canvas, vm, script.src, window.TestCase);
+                            window.judge = judge; // Save judge instance for later use
+                            //document.getElementById('restartProjectButton').style.display = '';
+                            await judge.start();
+                        }).catch(error => {
+                            console.error('Failed to load or start the project:', error);
+                        });
+                    }).catch(error => {
+                        console.error('Failed to fetch the .sb3 file:', error);
+                    });
+                };
+                script.onerror = () => {
+                    console.error('Failed to load the JS file:', error);
+                };
+                document.head.appendChild(script);
+            }
+
+            function setAndLoadProject(projectFileName) {
+                result.innerHTML = '';
+                document.getElementById('projectFile').innerHTML = projectFileName;
                 loadProject(projectFileName);
             }
-        });
 
-        document.getElementById('restartProjectButton').addEventListener('click', () => {
-            result.innerHTML = '';
-            window.judge.restart();
-        });
+            document.getElementById('loadProjectButton').addEventListener('click', () => {
+                var projectFileName = document.getElementById('projectFile').value;
+                loadProject(projectFileName);
+            });
 
-        btnGroup.style['display'] = "";
-    </script>
+            document.getElementById('projectFile').addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    var projectFileName = document.getElementById('projectFile').value;
+                    loadProject(projectFileName);
+                }
+            });
+
+            document.getElementById('restartProjectButton').addEventListener('click', () => {
+                result.innerHTML = '';
+                window.judge.restart();
+            });
+
+            btnGroup.style['display'] = "";
+        </script>
 </body>
+
 </html>

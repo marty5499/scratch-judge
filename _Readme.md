@@ -21,6 +21,7 @@
 - 開發程式碼
     - ./draw-testcase.js 關卡測試的總父類別
     - ./judge.js 慶奇開發的引擎核心
-    - ./stage/ 存放每個關卡的 testcase
-    - ./stage_draw/ 存放每個繪圖關卡的 testcase
+    - ./stage/ 存放每個關卡(包含繪圖關卡)的 testcase
+    - ./stage_draw/ 暫存區
 
+# 關卡父類別
