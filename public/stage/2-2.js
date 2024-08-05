@@ -15,9 +15,9 @@ https://scratch.mit.edu/projects/979042531
 按下 A 鍵，角色造型由跑步⭢防禦 1⭢防禦 2⭢跑步，間隔 0.1 秒
 */
 
-window.TestCase = class TestCase {
+window.TestCase = class TestCase extends RootTestCase{
   constructor(judge) {
-    this.judge = judge;
+    super(judge);
   }
 
   async start(callback) {

@@ -24,9 +24,9 @@ https://scratch.mit.edu/projects/979037327
 按下 A 鍵，角色切換攻擊造型
 */
 
-window.TestCase = class TestCase {
+window.TestCase = class TestCase extends RootTestCase{
   constructor(judge) {
-    this.judge = judge;
+    super(judge);
   }
 
   async start(callback) {

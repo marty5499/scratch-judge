@@ -25,9 +25,9 @@ https://scratch.mit.edu/projects/979055577
 按下 D 鍵，角色切換防禦造型
 */
 
-window.TestCase = class TestCase {
+window.TestCase = class TestCase extends RootTestCase{
   constructor(judge) {
-    this.judge = judge;
+    super(judge);
   }
 
   async start(callback) {

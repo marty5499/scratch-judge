@@ -1,3 +1,16 @@
+class RootTestCase {
+  constructor(judge) {
+    //window.frameRate = 3;
+    this.vm = judge.vm;
+    this.judge = judge;
+    this.render = judge.vm.runtime.renderer;
+  }
+
+  onCompleted(scriptSrc) {
+    console.log(scriptSrc + "run completed.");
+  }
+}
+
 class DrawTestCase {
   constructor(judge) {
     //window.frameRate = 3;

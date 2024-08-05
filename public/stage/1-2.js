@@ -17,9 +17,9 @@ https://scratch.mit.edu/projects/979029128
 按下向左鍵，角色先換成向左造型，角色向左移動，移動結束換成站立造型
 */
 
-window.TestCase = class TestCase {
+window.TestCase = class TestCase extends RootTestCase{
   constructor(judge) {
-    this.judge = judge;
+    super(judge);
   }
 
   async start(callback) {

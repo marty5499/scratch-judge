@@ -1,9 +1,8 @@
-window.TestCase = class TestCase {
+window.TestCase = class TestCase extends RootTestCase {
   constructor(judge) {
+    super(judge);
     setFrameRate(3);
-    this.judge = judge;
   }
-
   async start(callback) {
     this.callback = callback;
     await this.case01();

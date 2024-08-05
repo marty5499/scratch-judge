@@ -11,8 +11,8 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// 設置靜態文件夾，將當前目錄設置為靜態文件夾
-app.use(express.static(path.join(__dirname, '.')));
+// 設置靜態文件夾，將 public 目錄設置為靜態文件夾
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 確認並創建 uploads 目錄（如果不存在）
 const testcaseDir = path.join(__dirname, 'testcase');
@@ -23,7 +23,7 @@ if (!fs.existsSync(testcaseDir)) {
 // 配置 Multer 用於文件上傳
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // 設置文件上傳目的地目錄為 uploads
+    // 設置文件上傳目的地目錄為 testcase
     cb(null, testcaseDir);
   },
   filename: (req, file, cb) => {
@@ -36,9 +36,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// 設置主頁路由，當用戶訪問根路徑時，返回 index.html
+// 設置主頁路由，當用戶訪問根路徑時，返回 public/index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // 設置文件上傳路由，處理用戶上傳的文件

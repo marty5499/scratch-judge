@@ -17,9 +17,9 @@ https://scratch.mit.edu/projects/979020087
 按下向上鍵，角色切換成跳躍造型，角色向上移動100後向下移動100，落地後換回跑步造型
 */
 
-window.TestCase = class TestCase {
+window.TestCase = class TestCase extends RootTestCase{
   constructor(judge) {
-    this.judge = judge;
+    super(judge);
   }
 
   async start(callback) {

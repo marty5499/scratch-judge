@@ -18,9 +18,9 @@ https://scratch.mit.edu/projects/975854235
 按下向上鍵，角色向上移動100後向下移動100
 */
 
-window.TestCase = class TestCase {
+window.TestCase = class TestCase extends RootTestCase{
   constructor(judge) {
-    this.judge = judge;
+    super(judge);
   }
 
   async start(callback) {
