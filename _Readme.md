@@ -25,3 +25,14 @@
     - ./stage_draw/ 暫存區
 
 # 關卡父類別
+
+
+
+# 更新到 Egame
+```sh
+# or build.sh 產生 image 並且 push to nest.webduino.tw/scratch-judge:latest
+> ./build_x86.sh 
+>egame-stg  # 先進入 egame-stg 測試機
+mingzeke@py-stg-master:~$ scratch-test # 再進入Scratch測試機
+>k9s # 刪除 scratch-judge container 就會重新抓 image 重啟新版本
+```

@@ -15,7 +15,7 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 確認並創建 uploads 目錄（如果不存在）
-const testcaseDir = path.join(__dirname, 'testcase');
+const testcaseDir = path.join(__dirname, 'public/testcase');
 if (!fs.existsSync(testcaseDir)) {
   fs.mkdirSync(testcaseDir);
 }
