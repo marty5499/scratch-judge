@@ -9,8 +9,8 @@ window.TestCase = class TestCase extends DrawTestCase {
 
   // sb3 檔案執行結束,再進行判斷
   async onCompleted(ansPNG) {
+    // await this.saveImage(); // 儲存圖片
     var result = await this.captureAndCompare(ansPNG);
-    //console.log("result.rawMisMatchPercentage:", result);
     this.callback("", result.rawMisMatchPercentage < 1, `畫圖`);
   }
 };

@@ -75,7 +75,6 @@ class DrawTestCase {
           break;
         }
       }
-
       if (isValid) {
         //console.log("成功读取像素数据:", pixels);
         break;
@@ -84,6 +83,36 @@ class DrawTestCase {
         await this.delay(50); // 等待一段时间后重试
       }
     }
+  }
+
+  /*
+   * 儲存圖片
+   */
+  async saveImage() {
+    const gl = this.render._gl;
+    const width = gl.drawingBufferWidth;
+    const height = gl.drawingBufferHeight;
+    var pixels = new Uint8Array(width * height * 4);
+    await this.readPixels(gl, pixels);
+    const captureCanvas = document.createElement("canvas");
+    captureCanvas.width = width;
+    captureCanvas.height = height;
+    const context = captureCanvas.getContext("2d");
+    // 创建 ImageData 对象来存储像素数据
+    var imageData = context.createImageData(width, height);
+    // 将像素数据复制到 ImageData 对象，并翻转图像
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        const pixelIndex = (i * width + j) * 4;
+        const flippedIndex = ((height - i - 1) * width + j) * 4;
+        imageData.data[pixelIndex] = pixels[flippedIndex];
+        imageData.data[pixelIndex + 1] = pixels[flippedIndex + 1];
+        imageData.data[pixelIndex + 2] = pixels[flippedIndex + 2];
+        imageData.data[pixelIndex + 3] = pixels[flippedIndex + 3];
+      }
+    }
+    context.putImageData(imageData, 0, 0);
+    this.downloadImage(captureCanvas);
   }
 
   async captureAndCompare(stageURL) {
@@ -112,13 +141,13 @@ class DrawTestCase {
     }
     //console.log("user imageData:", imageData.data);
     context.putImageData(imageData, 0, 0);
+    // 儲存檔案
     //this.downloadImage(captureCanvas);
     const base64Image = captureCanvas.toDataURL();
     const referenceImage = await this.getBase64Image(stageURL);
     //console.log("user base64:", base64Image.length);
     //console.log("ref. base64:", referenceImage.length);
-    const data = await this.compareImages(referenceImage, base64Image);
-    return data;
+    return await this.compareImages(referenceImage, base64Image);
   }
 
   async compareImages(referenceImage, base64Image) {
