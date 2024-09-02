@@ -12,10 +12,13 @@
             justify-content: space-around;
         }
 
+        #board {
+            border: 3px solid #ffa500;
+        }
+
         #test {
             flex: 0 0 auto;
             margin-right: 20px;
-            border: 3px solid #ffa500;
         }
 
         #list {
@@ -82,19 +85,43 @@
             display: inline-block;
             width: 160px;
         }
+
+        #container {
+            position: relative; /* 設置父容器為相對定位 */
+        }
+
+        #overlayImage {
+            position: absolute; /* 使用絕對定位 */
+            top: 0;
+            left: 0;
+            width: 100%; /* 設置圖片寬度為父容器的100% */
+            height: 100%; /* 設置圖片高度為父容器的100% */
+            opacity: 0.20; /* 設置透明度為 50% */
+            z-index: 10; /* 設置 z-index 以確保圖片疊在 canvas 之上 */
+            pointer-events: none; /* 確保鼠標事件穿透至 canvas */
+        }
+
+
     </style>
 </head>
 
 <body>
     <h2><a href="./index.html">首頁</a> <span style="margin:10px">關卡解答展示</h2>
-    <div id="container">
-        <div id="main">
-            <canvas id="test" width="640" height="480" style="width: 480px;"></canvas>
-            <div id="list">
-                <div>
-                    <h2>測試結果</h2>
+        <div id="container">
+            <div id="main">
+                <div id="board">
+                <!-- 使用一個新的 div 作為 canvas 和圖片的共同父容器 -->
+                <div id="canvas-container" style="position: relative; width: 640px; height: 480px;">
+                    <canvas id="test" style="width: 100%; height: 100%;"></canvas>
+                    <img id="overlayImage">
                 </div>
-                <div id="result"></div>
+                </div>
+                <div id="list">
+                    <div>
+                        <h2>測試結果</h2>
+                    </div>
+                    <div id="result"></div>
+                </div>
             </div>
         </div>
         關卡名稱：<span style='height:32px;font-size:1.5em' id="projectFile" value="1-1"></span>

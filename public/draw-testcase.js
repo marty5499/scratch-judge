@@ -17,6 +17,13 @@ class DrawTestCase {
     this.vm = judge.vm;
     this.judge = judge;
     this.render = judge.vm.runtime.renderer;
+    this.setBackgroundImage();
+    setFrameRate(60);
+  }
+
+  setBackgroundImage(){
+    const ansPNG = this.judge.scriptSrc.replace(".js", ".png");
+    document.getElementById('overlayImage').src = ansPNG;
   }
 
   async getBase64Image(url) {
