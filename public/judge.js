@@ -8,7 +8,6 @@ class Judge {
     this.variables = {};
     this.collisions = new Set(); // 用於記錄已發生的碰撞
     this.collisionCounts = {}; // 用於紀錄每個物件的碰撞次數
-    this.penEvents = []; // 用於記錄筆事件
     this.questionHandlerRegistered = false;
     this.monitorVariableChanges();
   }
@@ -212,47 +211,6 @@ class Judge {
     }
   }
 
-  registerPenHandlers() {
-    const self = this;
-    const originalStep = this.vm.runtime._step;
-    this.vm.runtime._step = function (time) {
-      for (const target of self.vm.runtime.targets) {
-        if (target.isStage) continue;
-        const penAttributes = target.drawable.penAttributes;
-        if (penAttributes) {
-          if (penAttributes.penDown) {
-            if (!self.penEvents.includes("penDown")) {
-              self.penEvents.push({ event: "penDown", timestamp: Date.now() });
-              console.log("Pen down event");
-            }
-          } else {
-            if (!self.penEvents.includes("penUp")) {
-              self.penEvents.push({ event: "penUp", timestamp: Date.now() });
-              console.log("Pen up event");
-            }
-          }
-          if (penAttributes.color) {
-            self.penEvents.push({
-              event: "setPenColor",
-              timestamp: Date.now(),
-              color: penAttributes.color,
-            });
-            console.log("Set pen color event", penAttributes.color);
-          }
-          if (penAttributes.size) {
-            self.penEvents.push({
-              event: "setPenSize",
-              timestamp: Date.now(),
-              size: penAttributes.size,
-            });
-            console.log("Set pen size event", penAttributes.size);
-          }
-        }
-      }
-      originalStep.call(self.vm.runtime, time);
-    };
-  }
-
   checkCollision(sprite1, sprite2) {
     const rect1 = {
       x: sprite1.x - sprite1.width / 2,
@@ -363,7 +321,6 @@ class Judge {
     var ele = document.getElementById("result");
     this.registerQuestionHandler();
     this.checkIfExecutionComplete(this);
-    //this.registerPenHandlers(); // 新增這行來註冊筆事件處理器
     await this.testcase.start(function (name, result, msg) {
       if (result) {
         ele.innerHTML += `<h3 style="background-color:#aaffaa">${name}: 測試 ${msg} 成功</h3>`;
@@ -378,7 +335,6 @@ class Judge {
     this.sprites = {};
     this.collisions = new Set(); // 重置碰撞記錄
     this.collisionCounts = {}; // 重置碰撞次數
-    this.penEvents = []; // 重置筆事件
     this.loadSprite();
     this.vm.greenFlag();
   }
