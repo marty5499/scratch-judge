@@ -19,9 +19,8 @@ window.TestCase = class TestCase extends RootTestCase {
   }
   async start(callback) {
     this.callback = callback;
-    //await this.case01();
-    await this.case02();
-    //await this.case03();
+    await this.case01();
+    await this.case02_case03_case04();
   }
 
   // {Cat: 2, Gobo: 7, GoboFire: 9, Dragon: 0}
@@ -51,28 +50,29 @@ window.TestCase = class TestCase extends RootTestCase {
 
   // 按 f 鍵 Gobo 夥伴會攻擊飛龍
   // 假設飛龍遭受到碰撞視為攻擊
-  async case02() {
+  async case02_case03_case04() {
     await this.judge.delay(1000);
-    console.log(this.judge.sprites_name());
+    var monitorId_before_attach = this.judge.sprites_name()['Dragon'][1].id;    
     await this.judge.press("f", 50);
     await this.judge.delay(500);
     var info = this.judge.collisionCounts;
     console.log(info);
+    var monitorId_after_attach = this.judge.sprites_name()['Dragon'][1].id;
     this.callback(
-      "case01",
+      "case02",
       info["Dragon"] == 0 && info["GoboFire"] > 1,
       "飛行夥伴攻擊飛龍"
     );
-    console.log(this.judge.sprites_id());
-
-  }
-
-  async case03() {
-    console.log(this.judge.sprites_name());
+    
     this.callback(
       "case03",
-      true,
-      "有沒有消失呢"
+      monitorId_before_attach != monitorId_after_attach,
+      "飛龍受到攻擊會消失"
+    );
+    this.callback(
+      "case04",
+      monitorId_before_attach != monitorId_after_attach,
+      "飛龍消失後會再出現"
     );
   }
 };

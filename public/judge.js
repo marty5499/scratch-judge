@@ -4,6 +4,7 @@ class Judge {
     this.vm = vm;
     this.scriptSrc = scriptSrc;
     this.TestCase = TestCase;
+    this.clones = {}; // 分身建立、刪除紀錄
     this.sprites = {};
     this.variables = {};
     this.collisions = new Set(); // 用於記錄已發生的碰撞
@@ -125,6 +126,7 @@ class Judge {
         var target = clones.slice(-1)[0];
         if (typeof target == "undefined")
           return Reflect.set(clones, property, value, receiver);
+
         const costume = target.sprite.costumes[target.currentCostume];
         const width =
           costume.bitmapResolution === 2
@@ -134,6 +136,7 @@ class Judge {
           costume.bitmapResolution === 2
             ? costume.rotationCenterY * 2
             : costume.rotationCenterY;
+
         self.sprites[target.id] = {
           target: target,
           name: target.sprite.name,
@@ -146,12 +149,41 @@ class Judge {
           currentCostume: target.currentCostume,
           records: [],
         };
+
+        self.onCloneState(target, "create"); // 觸發分身新增事件
         self.registerObservers(target);
         self.collisionCounts[target.sprite.name] = 0; // 初始化碰撞次數
         return Reflect.set(clones, property, value, receiver);
       },
+      deleteProperty: function (clones, property) {
+        const target = clones[property];
+        self.onCloneState(target, "delete"); // 觸發分身刪除事件
+        delete self.sprites[target.id]; // 更新分身記錄
+        return Reflect.deleteProperty(clones, property);
+      },
     });
     target.sprite.clones = clonesProxy;
+  }
+
+  // 新增分身事件的處理函數
+  onCloneState(target, action) {
+    var id = target.id;
+    var name = target.sprite.name;
+    if (!(name in this.clones)) {
+      this.clones[name] = {};
+    }
+    if (!(id in this.clones[name])) {
+      this.clones[name][id] = [];
+    }
+    this.clones[name][id].push({
+      id: id,
+      name: name,
+      state: action,
+      currentCostume: target.currentCostume,
+      timestamp: Date.now(),
+    });
+    //console.log("Clone:", this.clones);
+    // 可以在這裡添加更多的邏輯處理，如觸發自定義事件等
   }
 
   registerObservers(target) {
@@ -268,9 +300,10 @@ class Judge {
         timestamp: timestamp,
       };
       spriteRecord["records"].push(rec);
+
       for (const spriteId in this.sprites) {
         const otherSprite = this.sprites[spriteId];
-        //不可見的物件不列入碰撞
+        // 不可見的物件不列入碰撞
         if (!otherSprite.target.visible || !sprite.visible) continue;
         if (
           otherSprite.id !== sprite.id &&
