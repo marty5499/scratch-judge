@@ -266,9 +266,7 @@ class Judge {
             this.checkCollision(spriteRecord, otherSprite) &&
             !this.collisions.has(collisionKey)
           ) {
-            console.log(
-              `Collision detected between ${spriteRecord.name} and ${otherSprite.name}`
-            );
+            //console.log(`Collision detected between ${spriteRecord.name} and ${otherSprite.name}`);
             this.collisions.add(collisionKey);
             this.collisionCounts[spriteRecord.name]++;
             this.collisionCounts[otherSprite.name]++;
