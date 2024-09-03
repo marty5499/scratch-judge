@@ -17,6 +17,10 @@ class Timeline {
     this._timeline.push(info);
   }
 
+  info() {
+    return this._timeline;
+  }
+
   stringify() {
     return JSON.stringify(this._timeline);
   }
@@ -221,7 +225,7 @@ class Judge {
     this.monitorProperty(target, "visible");
     this.monitorProperty(target, "isOriginal");
   }
-  
+
   monitorProperty(target, propName, isCoordinate = false) {
     const judge = this;
     let originalValue = target[propName];
