@@ -87,6 +87,8 @@ class Judge {
           height: height,
           direction: target.direction,
           currentCostume: target.currentCostume,
+          //visible: target.visible,
+          //isOriginal: target.isOriginal,
           records: [],
         };
         this.registerObservers(target);
@@ -157,6 +159,8 @@ class Judge {
     this.monitorProperty(target, "y", true);
     this.monitorProperty(target, "direction");
     this.monitorProperty(target, "currentCostume");
+    this.monitorProperty(target, "visible");
+    this.monitorProperty(target, "isOriginal");
   }
 
   monitorProperty(target, propName, isCoordinate = false) {
@@ -203,7 +207,7 @@ class Judge {
               value: newValue,
               timestamp: Date.now(),
             });
-            console.log(`Variable ${variable.name} changed to ${newValue}`);
+            //console.log(`Variable ${variable.name} changed to ${newValue}`);
           }
         },
         configurable: true,
@@ -236,7 +240,14 @@ class Judge {
 
   onUpdate(sprite) {
     const spriteRecord = this.sprites[sprite.id];
-    const properties = ["x", "y", "direction", "currentCostume"];
+    const properties = [
+      "x",
+      "y",
+      "direction",
+      "currentCostume",
+      "visible",
+      "isOriginal",
+    ];
     let updated = false;
     const timestamp = Date.now();
     properties.forEach((prop) => {
@@ -247,16 +258,20 @@ class Judge {
     });
 
     if (updated) {
-      spriteRecord["records"].push({
+      var rec = {
         x: sprite.x,
         y: sprite.y,
+        visible: sprite.visible,
+        isOriginal: sprite.isOriginal,
         direction: sprite.direction,
         currentCostume: sprite.currentCostume,
         timestamp: timestamp,
-      });
-
+      };
+      spriteRecord["records"].push(rec);
       for (const spriteId in this.sprites) {
         const otherSprite = this.sprites[spriteId];
+        //不可見的物件不列入碰撞
+        if (!otherSprite.target.visible || !sprite.visible) continue;
         if (
           otherSprite.id !== sprite.id &&
           spriteRecord.name !== otherSprite.name
@@ -270,6 +285,7 @@ class Judge {
             this.collisions.add(collisionKey);
             this.collisionCounts[spriteRecord.name]++;
             this.collisionCounts[otherSprite.name]++;
+            //console.log(this.collisionCounts);
             // 在這裡觸發碰撞事件
           } else if (
             !this.checkCollision(spriteRecord, otherSprite) &&
@@ -335,6 +351,22 @@ class Judge {
     this.collisionCounts = {}; // 重置碰撞次數
     this.loadSprite();
     this.vm.greenFlag();
+  }
+
+  sprites_id() {
+    return this.sprites;
+  }
+
+  sprites_name() {
+    var sprites_name = {};
+    for (const target of this.vm.runtime.targets) {
+      var spriteName = target["sprite"]["name"];
+      if (!(spriteName in sprites_name)) {
+        sprites_name[spriteName] = [];
+      }
+      sprites_name[spriteName].push(target);
+    }
+    return sprites_name;
   }
 
   checkIfExecutionComplete(self) {

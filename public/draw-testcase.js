@@ -21,9 +21,9 @@ class DrawTestCase {
     setFrameRate(60);
   }
 
-  setBackgroundImage(){
+  setBackgroundImage() {
     const ansPNG = this.judge.scriptSrc.replace(".js", ".png");
-    document.getElementById('overlayImage').src = ansPNG;
+    document.getElementById("overlayImage").src = ansPNG;
   }
 
   async getBase64Image(url) {
