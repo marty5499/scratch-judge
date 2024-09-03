@@ -1,12 +1,5 @@
 /*
-{Cat: 2, Gobo: 7, GoboFire: 9, Dragon: 0}
-- 一個飛行夥伴，會隨著小貓移動 [Gobo]
-  x座標? y座標? 有沒有偏移量?
-- 按 f 鍵 Gobo 夥伴會攻擊飛龍
-  GoboFire?
-- 飛龍受到攻擊會消失
-  刪除分身? 顯示隱藏?
-- 飛龍消失後會再出現
+血條偵測
 */
 window.TestCase = class TestCase extends RootTestCase {
   constructor(judge) {

@@ -43,6 +43,12 @@ this.judge.sprites_id()
 this.judge.sprites_name()
 //取得所有變數資訊
 this.judge.variables
+// 取得時間軸的事件觸發
+// 1. 角色屬性 x,y,direction,currentCostume,visible,isOriginal
+// 2. 建立分身、刪除分身
+// 3. 碰撞
+// 4. 變數改變值
+this.judge.timeline
 ```
 
 ## 角色(sprite 或 target)包含可用的屬性

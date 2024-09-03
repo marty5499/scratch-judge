@@ -1,3 +1,27 @@
+class Timeline {
+  constructor() {
+    this._timeline = [];
+  }
+
+  push(eventName, name, value) {
+    var info = {};
+    info[name] = value;
+    this.pushObj(eventName, info);
+  }
+
+  pushObj(eventName, info) {
+    info["event"] = eventName;
+    if (!("timestamp" in info)) {
+      info["timestamp"] = Date.now();
+    }
+    this._timeline.push(info);
+  }
+
+  stringify() {
+    return JSON.stringify(this._timeline);
+  }
+}
+
 class Judge {
   constructor(canvas, vm, scriptSrc, TestCase) {
     this.canvas = canvas;
@@ -5,12 +29,13 @@ class Judge {
     this.scriptSrc = scriptSrc;
     this.TestCase = TestCase;
     this.clones = {}; // 分身建立、刪除紀錄
-    this.sprites = {};
-    this.variables = {};
+    this.sprites = {}; // 所有角色
+    this.variables = {}; // 所有變數
     this.collisions = new Set(); // 用於記錄已發生的碰撞
     this.collisionCounts = {}; // 用於紀錄每個物件的碰撞次數
     this.questionHandlerRegistered = false;
     this.monitorVariableChanges();
+    this.timeline = new Timeline();
   }
 
   async clickSprite(target) {
@@ -175,14 +200,16 @@ class Judge {
     if (!(id in this.clones[name])) {
       this.clones[name][id] = [];
     }
-    this.clones[name][id].push({
+    var info = {
       id: id,
       name: name,
       state: action,
       currentCostume: target.currentCostume,
       timestamp: Date.now(),
-    });
+    };
+    this.clones[name][id].push(info);
     //console.log("Clone:", this.clones);
+    this.timeline.pushObj("clone_" + action, info);
     // 可以在這裡添加更多的邏輯處理，如觸發自定義事件等
   }
 
@@ -194,7 +221,7 @@ class Judge {
     this.monitorProperty(target, "visible");
     this.monitorProperty(target, "isOriginal");
   }
-
+  
   monitorProperty(target, propName, isCoordinate = false) {
     const judge = this;
     let originalValue = target[propName];
@@ -206,13 +233,13 @@ class Judge {
         if (isCoordinate) {
           if (Math.floor(originalValue) !== Math.floor(newValue)) {
             originalValue = newValue;
-            judge.onUpdate(target);
+            judge.onUpdate(target, propName, newValue);
           } else {
             originalValue = newValue;
           }
         } else {
           originalValue = newValue;
-          judge.onUpdate(target);
+          judge.onUpdate(target, propName, newValue);
         }
       },
       configurable: true,
@@ -239,7 +266,8 @@ class Judge {
               value: newValue,
               timestamp: Date.now(),
             });
-            //console.log(`Variable ${variable.name} changed to ${newValue}`);
+            var name = variable.name;
+            self.timeline.push("var_update", name, newValue);
           }
         },
         configurable: true,
@@ -270,7 +298,7 @@ class Judge {
     );
   }
 
-  onUpdate(sprite) {
+  onUpdate(sprite, propName, newValue) {
     const spriteRecord = this.sprites[sprite.id];
     if (spriteRecord == null) return;
     const properties = [
@@ -301,7 +329,7 @@ class Judge {
         timestamp: timestamp,
       };
       spriteRecord["records"].push(rec);
-
+      this.timeline.push("sprite", sprite.sprite.name, [propName, newValue]);
       for (const spriteId in this.sprites) {
         const otherSprite = this.sprites[spriteId];
         // 不可見的物件不列入碰撞
@@ -316,6 +344,10 @@ class Judge {
             !this.collisions.has(collisionKey)
           ) {
             //console.log(`Collision detected between ${spriteRecord.name} and ${otherSprite.name}`);
+            this.timeline.push("collision", spriteRecord.name, [
+              spriteRecord.name,
+              otherSprite.name,
+            ]);
             this.collisions.add(collisionKey);
             this.collisionCounts[spriteRecord.name]++;
             this.collisionCounts[otherSprite.name]++;
