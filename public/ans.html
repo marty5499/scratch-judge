@@ -87,260 +87,269 @@
         }
 
         #container {
-            position: relative; /* 設置父容器為相對定位 */
+            position: relative;
+            /* 設置父容器為相對定位 */
         }
 
         #overlayImage {
-            position: absolute; /* 使用絕對定位 */
+            position: absolute;
+            /* 使用絕對定位 */
             top: 0;
             left: 0;
-            width: 100%; /* 設置圖片寬度為父容器的100% */
-            height: 100%; /* 設置圖片高度為父容器的100% */
-            opacity: 0.20; /* 設置透明度為 50% */
-            z-index: 10; /* 設置 z-index 以確保圖片疊在 canvas 之上 */
-            pointer-events: none; /* 確保鼠標事件穿透至 canvas */
+            width: 100%;
+            /* 設置圖片寬度為父容器的100% */
+            height: 100%;
+            /* 設置圖片高度為父容器的100% */
+            opacity: 0.20;
+            /* 設置透明度為 50% */
+            z-index: 10;
+            /* 設置 z-index 以確保圖片疊在 canvas 之上 */
+            pointer-events: none;
+            /* 確保鼠標事件穿透至 canvas */
         }
-
-
     </style>
 </head>
 
 <body>
     <h2><a href="./index.html">首頁</a> <span style="margin:10px">關卡解答展示</h2>
-        <div id="container">
-            <div id="main">
-                <div id="board">
+    <div id="container">
+        <div id="main">
+            <div id="board">
                 <!-- 使用一個新的 div 作為 canvas 和圖片的共同父容器 -->
                 <div id="canvas-container" style="position: relative; width: 640px; height: 480px;">
                     <canvas id="test" style="width: 100%; height: 100%;"></canvas>
                     <img id="overlayImage">
                 </div>
+            </div>
+            <div id="list">
+                <div>
+                    <h2>測試結果</h2>
                 </div>
-                <div id="list">
-                    <div>
-                        <h2>測試結果</h2>
-                    </div>
-                    <div id="result"></div>
-                </div>
+                <div id="result"></div>
             </div>
         </div>
-        關卡名稱：<span style='height:32px;font-size:1.5em' id="projectFile" value="1-1"></span>
-        <button id="loadProjectButton" style="display:none;">讀取</button>
-        <button id="restartProjectButton" style="display:none;">重新執行</button>
-        <div id="btnGroup" style="display: none;" class="tab-container">
-            <div class="tabs">
-                <div class="tab tab-active" onclick="showTab('tab1')">高互動關卡(一)</div>
-                <div class="tab" onclick="showTab('tab2')">高互動關卡(二)</div>
-                <div class="tab" onclick="showTab('tab3')">個人冒險</div>
+    </div>
+    關卡名稱：<span style='height:32px;font-size:1.5em' id="projectFile" value="1-1"></span>
+    <button id="loadProjectButton" style="display:none;">讀取</button>
+    <button id="restartProjectButton" style="display:none;">重新執行</button>
+    <div id="btnGroup" style="display: none;" class="tab-container">
+        <div class="tabs">
+            <div class="tab tab-active" onclick="showTab('tab1')">高互動關卡(一)</div>
+            <div class="tab" onclick="showTab('tab2')">高互動關卡(二)</div>
+            <div class="tab" onclick="showTab('tab3')">個人冒險</div>
+        </div>
+
+        <div id="tab1" class="tab-content active">
+            <button onclick="setAndLoadProject('g-00')">分身測試</button>
+            <button onclick="setAndLoadProject('g-01')">01 你好世界</button>
+            <button onclick="setAndLoadProject('g-02')">02 問答學堂</button>
+            <button onclick="setAndLoadProject('g-03')">03 環遊世界</button>
+            <button onclick="setAndLoadProject('g-04')">04 收集愛心</button>
+            <button onclick="setAndLoadProject('g-05')">05 魔法世界</button>
+        </div>
+
+        <div id="tab2" class="tab-content">
+            <div><a target="_blank"
+                    href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">Egame
+                    Scratch 腳本</a></div>
+            <div>
+                <span class="stageLabel">Unit.1：故事的開端</span>
+                <button onclick="setAndLoadProject('1-1')">1-1</button>
+                <button onclick="setAndLoadProject('1-2')">1-2</button>
+                <button onclick="setAndLoadProject('1-3')">1-3</button>
+                <button onclick="setAndLoadProject('1-4')">1-4</button>
             </div>
-
-            <div id="tab1" class="tab-content active">
-                <button onclick="setAndLoadProject('g-00')">分身測試</button>
-                <button onclick="setAndLoadProject('g-01')">01 你好世界</button>
-                <button onclick="setAndLoadProject('g-02')">02 問答學堂</button>
-                <button onclick="setAndLoadProject('g-03')">03 環遊世界</button>
-                <button onclick="setAndLoadProject('g-04')">04 收集愛心</button>
-                <button onclick="setAndLoadProject('g-05')">05 魔法世界</button>
+            <div>
+                <span class="stageLabel">Unit.2：冒險啟程</span>
+                <button onclick="setAndLoadProject('2-1')">2-1</button>
+                <button onclick="setAndLoadProject('2-2')">2-2</button>
+                <button onclick="setAndLoadProject('2-3')">2-3</button>
+                <button onclick="setAndLoadProject('2-4')">2-4</button>
             </div>
-
-            <div id="tab2" class="tab-content">
-                <div><a target="_blank"
-                        href="https://hackmd.io/@chihchao/r1DKLad2a#Unit-1-%E6%95%85%E4%BA%8B%E7%9A%84%E9%96%8B%E7%AB%AF">Egame
-                        Scratch 腳本</a></div>
-                <div>
-                    <span class="stageLabel">Unit.1：故事的開端</span>
-                    <button onclick="setAndLoadProject('1-1')">1-1</button>
-                    <button onclick="setAndLoadProject('1-2')">1-2</button>
-                    <button onclick="setAndLoadProject('1-3')">1-3</button>
-                    <button onclick="setAndLoadProject('1-4')">1-4</button>
-                </div>
-                <div>
-                    <span class="stageLabel">Unit.2：冒險啟程</span>
-                    <button onclick="setAndLoadProject('2-1')">2-1</button>
-                    <button onclick="setAndLoadProject('2-2')">2-2</button>
-                    <button onclick="setAndLoadProject('2-3')">2-3</button>
-                    <button onclick="setAndLoadProject('2-4')">2-4</button>
-                </div>
-                <div>
-                    <span class="stageLabel">Unit.3：鎮壓荒野獸族</span>
-                    <button onclick="setAndLoadProject('3-1')">3-1</button>
-                    <button onclick="setAndLoadProject('3-2')">3-2</button>
-                    <button onclick="setAndLoadProject('3-3')">3-3</button>
-                    <button onclick="setAndLoadProject('3-4')">3-4</button>
-                </div>
-                <div>
-                    <span class="stageLabel">Unit.8：召喚術式</span>
-                    <button onclick="setAndLoadProject('8-1')">8-1</button>
-                </div>
+            <div>
+                <span class="stageLabel">Unit.3：鎮壓荒野獸族</span>
+                <button onclick="setAndLoadProject('3-1')">3-1</button>
+                <button onclick="setAndLoadProject('3-2')">3-2</button>
+                <button onclick="setAndLoadProject('3-3')">3-3</button>
+                <button onclick="setAndLoadProject('3-4')">3-4</button>
             </div>
-
-            <div id="tab3" class="tab-content">
-                <span class="stageLabel">5個 Scratch課程</span>
-                <button onclick="setAndLoadProject('draw-01')">函數</button>
-                <button onclick="setAndLoadProject('draw-02')">循序</button>
-                <button onclick="setAndLoadProject('draw-03')">古文明崩落</button>
-                <button onclick="setAndLoadProject('draw-04')">大雪花</button>
-
+            <div>
+                <span class="stageLabel">Unit.5：穿越森林</span>
+                <button onclick="setAndLoadProject('5-5')">5-5</button>
+            </div>
+            <div>
+                <span class="stageLabel">Unit.8：召喚術式</span>
+                <button onclick="setAndLoadProject('8-1')">8-1</button>
             </div>
         </div>
 
-        <script src="./scratch-vm.js"></script>
-        <script src="./scratch-storage.js"></script>
-        <script src="./scratch-svg-renderer.js"></script>
-        <script src="./scratch-render.js"></script>
-        <script src="./resemble.min.js"></script>
+        <div id="tab3" class="tab-content">
+            <span class="stageLabel">5個 Scratch課程</span>
+            <button onclick="setAndLoadProject('draw-01')">函數</button>
+            <button onclick="setAndLoadProject('draw-02')">循序</button>
+            <button onclick="setAndLoadProject('draw-03')">古文明崩落</button>
+            <button onclick="setAndLoadProject('draw-04')">大雪花</button>
 
-        <script src="./draw-testcase.js"></script>
-        <script src="./judge.js"></script>
-        <script>
-            window.devicePixelRatio = 1;
-            var canvas = document.getElementById('test');
-            var render = new ScratchRender(canvas);
-            var vm = new VirtualMachine();
-            var storage = new ScratchStorage();
-            vm.attachStorage(storage);
-            vm.attachRenderer(render);
-            vm.attachV2SVGAdapter(new ScratchSVGRenderer.SVGRenderer());
-            vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
+        </div>
+    </div>
 
-            let lastTime = 0;
-            window.frameRate = 60; // 初始幀率 (每秒幀數)
-            const originalStep = vm.runtime._step;
+    <script src="./scratch-vm.js"></script>
+    <script src="./scratch-storage.js"></script>
+    <script src="./scratch-svg-renderer.js"></script>
+    <script src="./scratch-render.js"></script>
+    <script src="./resemble.min.js"></script>
+
+    <script src="./draw-testcase.js"></script>
+    <script src="./judge.js"></script>
+    <script>
+        window.devicePixelRatio = 1;
+        var canvas = document.getElementById('test');
+        var render = new ScratchRender(canvas);
+        var vm = new VirtualMachine();
+        var storage = new ScratchStorage();
+        vm.attachStorage(storage);
+        vm.attachRenderer(render);
+        vm.attachV2SVGAdapter(new ScratchSVGRenderer.SVGRenderer());
+        vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
+
+        let lastTime = 0;
+        window.frameRate = 60; // 初始幀率 (每秒幀數)
+        const originalStep = vm.runtime._step;
+        window.runSpeed = 100.0 / window.frameRate;
+
+        function setFrameRate(newFrameRate) {
+            window.frameRate = newFrameRate;
             window.runSpeed = 100.0 / window.frameRate;
+        }
 
-            function setFrameRate(newFrameRate) {
-                window.frameRate = newFrameRate;
-                window.runSpeed = 100.0 / window.frameRate;
+        vm.runtime._step = function (time) {
+            if (time - lastTime >= 1000 / window.frameRate) {
+                lastTime = time;
+                originalStep.call(vm.runtime, time);
             }
+            requestAnimationFrame(vm.runtime._step.bind(vm.runtime));
+        };
 
-            vm.runtime._step = function (time) {
-                if (time - lastTime >= 1000 / window.frameRate) {
-                    lastTime = time;
-                    originalStep.call(vm.runtime, time);
-                }
-                requestAnimationFrame(vm.runtime._step.bind(vm.runtime));
-            };
-
-            document.addEventListener('keydown', e => {
-                vm.postIOData('keyboard', {
-                    key: e.key,
-                    isDown: true
-                });
+        document.addEventListener('keydown', e => {
+            vm.postIOData('keyboard', {
+                key: e.key,
+                isDown: true
             });
+        });
 
-            document.addEventListener('keyup', e => {
-                vm.postIOData('keyboard', {
-                    key: e.key,
-                    isDown: false
-                });
+        document.addEventListener('keyup', e => {
+            vm.postIOData('keyboard', {
+                key: e.key,
+                isDown: false
             });
+        });
 
-            function getMousePosition(event, rect) {
-                const x = event.clientX - rect.left;
-                const y = event.clientY - rect.top;
-                return { x, y };
-            }
+        function getMousePosition(event, rect) {
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            return { x, y };
+        }
 
-            canvas.addEventListener('mousedown', e => {
-                const rect = canvas.getBoundingClientRect();
-                const { x, y } = getMousePosition(e, rect);
-                vm.postIOData('mouse', {
-                    x: x,
-                    y: y,
-                    canvasWidth: canvas.width,
-                    canvasHeight: canvas.height,
-                    isDown: true
-                });
+        canvas.addEventListener('mousedown', e => {
+            const rect = canvas.getBoundingClientRect();
+            const { x, y } = getMousePosition(e, rect);
+            vm.postIOData('mouse', {
+                x: x,
+                y: y,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                isDown: true
             });
+        });
 
-            canvas.addEventListener('mouseup', e => {
-                const rect = canvas.getBoundingClientRect();
-                const { x, y } = getMousePosition(e, rect);
-                vm.postIOData('mouse', {
-                    x: x,
-                    y: y,
-                    canvasWidth: canvas.width,
-                    canvasHeight: canvas.height,
-                    isDown: false
-                });
+        canvas.addEventListener('mouseup', e => {
+            const rect = canvas.getBoundingClientRect();
+            const { x, y } = getMousePosition(e, rect);
+            vm.postIOData('mouse', {
+                x: x,
+                y: y,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                isDown: false
             });
+        });
 
-            canvas.addEventListener('mousemove', e => {
-                const rect = canvas.getBoundingClientRect();
-                const { x, y } = getMousePosition(e, rect);
-                vm.postIOData('mouse', {
-                    x: x,
-                    y: y,
-                    canvasWidth: canvas.width,
-                    canvasHeight: canvas.height,
-                    isDown: e.buttons === 1 // 如果按下滑鼠左鍵
-                });
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            const { x, y } = getMousePosition(e, rect);
+            vm.postIOData('mouse', {
+                x: x,
+                y: y,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                isDown: e.buttons === 1 // 如果按下滑鼠左鍵
             });
+        });
 
-            function showTab(tabId) {
-                var tabs = document.querySelectorAll('.tab-content');
-                tabs.forEach(function (tab) {
-                    tab.classList.remove('active');
-                });
-                document.getElementById(tabId).classList.add('active');
+        function showTab(tabId) {
+            var tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(function (tab) {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
 
-                var tabButtons = document.querySelectorAll('.tab');
-                tabButtons.forEach(function (button) {
-                    button.classList.remove('tab-active');
-                });
-                document.querySelector('[onclick="showTab(\'' + tabId + '\')"]').classList.add('tab-active');
-            }
+            var tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(function (button) {
+                button.classList.remove('tab-active');
+            });
+            document.querySelector('[onclick="showTab(\'' + tabId + '\')"]').classList.add('tab-active');
+        }
 
-            function loadProject(projectFileName) {
-                var script = document.createElement('script');
-                script.src = `./stage/${projectFileName}.js`;
-                script.onload = () => {
-                    fetch(`./stage/${projectFileName}.sb3`).then(response => response.arrayBuffer()).then(projectData => {
-                        vm.start();
-                        vm.loadProject(projectData).then(async () => {
-                            //console.log("Project loaded...");
-                            var judge = new Judge(canvas, vm, script.src, window.TestCase);
-                            window.judge = judge; // Save judge instance for later use
-                            //document.getElementById('restartProjectButton').style.display = '';
-                            await judge.start();
-                        }).catch(error => {
-                            console.error('Failed to load or start the project:', error);
-                        });
+        function loadProject(projectFileName) {
+            var script = document.createElement('script');
+            script.src = `./stage/${projectFileName}.js`;
+            script.onload = () => {
+                fetch(`./stage/${projectFileName}.sb3`).then(response => response.arrayBuffer()).then(projectData => {
+                    vm.start();
+                    vm.loadProject(projectData).then(async () => {
+                        //console.log("Project loaded...");
+                        var judge = new Judge(canvas, vm, script.src, window.TestCase);
+                        window.judge = judge; // Save judge instance for later use
+                        //document.getElementById('restartProjectButton').style.display = '';
+                        await judge.start();
                     }).catch(error => {
-                        console.error('Failed to fetch the .sb3 file:', error);
+                        console.error('Failed to load or start the project:', error);
                     });
-                };
-                script.onerror = () => {
-                    console.error('Failed to load the JS file:', error);
-                };
-                document.head.appendChild(script);
-            }
+                }).catch(error => {
+                    console.error('Failed to fetch the .sb3 file:', error);
+                });
+            };
+            script.onerror = () => {
+                console.error('Failed to load the JS file:', error);
+            };
+            document.head.appendChild(script);
+        }
 
-            function setAndLoadProject(projectFileName) {
-                result.innerHTML = '';
-                document.getElementById('projectFile').innerHTML = projectFileName;
-                loadProject(projectFileName);
-            }
+        function setAndLoadProject(projectFileName) {
+            result.innerHTML = '';
+            document.getElementById('projectFile').innerHTML = projectFileName;
+            loadProject(projectFileName);
+        }
 
-            document.getElementById('loadProjectButton').addEventListener('click', () => {
+        document.getElementById('loadProjectButton').addEventListener('click', () => {
+            var projectFileName = document.getElementById('projectFile').value;
+            loadProject(projectFileName);
+        });
+
+        document.getElementById('projectFile').addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
                 var projectFileName = document.getElementById('projectFile').value;
                 loadProject(projectFileName);
-            });
+            }
+        });
 
-            document.getElementById('projectFile').addEventListener('keydown', e => {
-                if (e.key === 'Enter') {
-                    var projectFileName = document.getElementById('projectFile').value;
-                    loadProject(projectFileName);
-                }
-            });
+        document.getElementById('restartProjectButton').addEventListener('click', () => {
+            result.innerHTML = '';
+            window.judge.restart();
+        });
 
-            document.getElementById('restartProjectButton').addEventListener('click', () => {
-                result.innerHTML = '';
-                window.judge.restart();
-            });
-
-            btnGroup.style['display'] = "";
-        </script>
+        btnGroup.style['display'] = "";
+    </script>
 </body>
 
 </html>

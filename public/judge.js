@@ -272,6 +272,7 @@ class Judge {
 
   onUpdate(sprite) {
     const spriteRecord = this.sprites[sprite.id];
+    if (spriteRecord == null) return;
     const properties = [
       "x",
       "y",
