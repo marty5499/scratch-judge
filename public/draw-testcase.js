@@ -14,7 +14,7 @@ class RootTestCase {
     Math.random = function () {
       // 創建一個錯誤對象以捕捉堆棧跟蹤
       const stack = new Error().stack;
-      //建立分身不固定隨機數值
+      //固定隨機數值
       if (
         stack.includes("Sprite.createClone") ||
         stack.includes("Scratch3LooksBlocks._updateBubble")
@@ -23,7 +23,10 @@ class RootTestCase {
       }
       // 檢查堆棧中是否包含特定的呼叫者方法名稱
       // 「隨機位置」,
-      else if (stack.includes("Scratch3MotionBlocks.getTargetXY")) {
+      else if (
+        stack.includes("Scratch3MotionBlocks.getTargetXY") ||
+        stack.includes("Scratch3OperatorsBlocks.random")
+      ) {
         //console.log("Scratch3MotionBlocks.getTargetXY");
         return self.judge.fixedRandom; // 返回固定的值，比如 0.5
       } else {

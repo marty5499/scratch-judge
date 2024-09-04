@@ -1,4 +1,4 @@
-window.TestCase = class TestCase extends RootTestCase{
+window.TestCase = class TestCase extends RootTestCase {
   constructor(judge) {
     super(judge);
     //setFrameRate(2);
@@ -10,9 +10,15 @@ window.TestCase = class TestCase extends RootTestCase{
   }
 
   async case01() {
-    await this.judge.delay(5000);
-    var condition1 = this.judge.variables["愛心"]["records"].length >= 10;
-    var condition2 = this.judge.collisionCounts["Robot"] >= 10;
-    this.callback("case01", condition1 && condition2, `分數與碰撞10次以上`);
+    console.log("Case01....");
+    await this.judge.delay(1500);
+    var info = this.judge.timeline.info();
+    var del_clone = 0;
+    for (var i of info) {
+      if (i.eventName == "clone_delete") {
+        del_clone++;
+      }
+    }
+    this.callback("case01", del_clone > 10, `分數與碰撞10次以上`);
   }
 };

@@ -422,6 +422,12 @@ class Judge {
 
   async restart() {
     this.vm.stopAll();
+    this.fixedRandom = 0.5;
+    this.clones = {}; // 分身建立、刪除紀錄
+    this.variables = {}; // 所有變數
+    this.questionHandlerRegistered = false;
+    this.monitorVariableChanges();
+    this.timeline = new Timeline();
     this.sprites = {};
     this.collisions = new Set(); // 重置碰撞記錄
     this.collisionCounts = {}; // 重置碰撞次數
