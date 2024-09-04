@@ -3,6 +3,7 @@
 */
 window.TestCase = class TestCase extends RootTestCase {
   constructor(judge) {
+    judge.fixedRandom = 0.5;
     super(judge);
     window.ss = function () {
       console.log(window.judge.sprites);
@@ -44,18 +45,18 @@ window.TestCase = class TestCase extends RootTestCase {
   // 假設飛龍遭受到碰撞視為攻擊
   async case02_case03_case04() {
     await this.judge.delay(1000);
-    var monitorId_before_attach = this.judge.sprites_name()['Dragon'][1].id;    
+    var monitorId_before_attach = this.judge.sprites_name()["Dragon"][1].id;
     await this.judge.press("f", 50);
     await this.judge.delay(500);
     var info = this.judge.collisionCounts;
     console.log(info);
-    var monitorId_after_attach = this.judge.sprites_name()['Dragon'][1].id;
+    var monitorId_after_attach = this.judge.sprites_name()["Dragon"][1].id;
     this.callback(
       "case02",
       info["Dragon"] == 0 && info["GoboFire"] > 1,
       "飛行夥伴攻擊飛龍"
     );
-    
+
     this.callback(
       "case03",
       monitorId_before_attach != monitorId_after_attach,

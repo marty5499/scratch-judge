@@ -4,6 +4,35 @@ class RootTestCase {
     this.vm = judge.vm;
     this.judge = judge;
     this.render = judge.vm.runtime.renderer;
+    this.setRandom();
+  }
+
+  setRandom() {
+    var self = this;
+    const originalMathRandom = Math.random;
+    // 覆寫 Math.random 方法
+    Math.random = function () {
+      // 創建一個錯誤對象以捕捉堆棧跟蹤
+      const stack = new Error().stack;
+      //建立分身不固定隨機數值
+      if (
+        stack.includes("Sprite.createClone") ||
+        stack.includes("Scratch3LooksBlocks._updateBubble")
+      ) {
+        return originalMathRandom();
+      }
+      // 檢查堆棧中是否包含特定的呼叫者方法名稱
+      // 「隨機位置」,
+      else if (stack.includes("Scratch3MotionBlocks.getTargetXY")) {
+        //console.log("Scratch3MotionBlocks.getTargetXY");
+        return self.judge.fixedRandom; // 返回固定的值，比如 0.5
+      } else {
+        console.log("其他方法調用了 Math.random，目前保持隨機");
+        console.log(stack);
+        // 使用原始的 Math.random 方法
+        return originalMathRandom();
+      }
+    };
   }
 
   onCompleted(scriptSrc) {

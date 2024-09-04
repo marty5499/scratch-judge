@@ -30,6 +30,7 @@ class Judge {
   constructor(canvas, vm, scriptSrc, TestCase) {
     this.canvas = canvas;
     this.vm = vm;
+    this.fixedRandom = 0.5;
     this.scriptSrc = scriptSrc;
     this.TestCase = TestCase;
     this.clones = {}; // 分身建立、刪除紀錄
