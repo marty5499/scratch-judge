@@ -1,4 +1,4 @@
-window.TestCase = class TestCase extends RootTestCase{
+window.TestCase = class TestCase extends RootTestCase {
   constructor(judge) {
     super(judge);
   }
@@ -18,6 +18,7 @@ window.TestCase = class TestCase extends RootTestCase{
     for (const target of this.judge.vm.runtime.targets) {
       if (target.sprite.name === "Robot") {
         await this.judge.clickSprite(target);
+        console.log("click robot...");
       }
       if (target.sprite.name === "Stage") {
         target_stage = target;
@@ -29,6 +30,7 @@ window.TestCase = class TestCase extends RootTestCase{
     await this.judge.delay(500); // 等待場景切換
     var costume = target_stage.sprite.costumes[target_stage.currentCostume];
     var imgUrl_2 = costume.asset.encodeDataURI();
+    console.log("compare image:", imgUrl_1 == imgUrl_2);
 
     let saidText = "";
     for (const target of this.judge.vm.runtime.targets) {
@@ -38,6 +40,6 @@ window.TestCase = class TestCase extends RootTestCase{
     }
 
     var condition = saidText == sayText && imgUrl_1 != imgUrl_2;
-    this.callback(sayText, condition, `切換場景`);
+    this.callback(caseName + ":" + sayText, condition, `切換場景`);
   }
 };
