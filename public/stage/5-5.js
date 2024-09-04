@@ -1,5 +1,17 @@
 /*
-血條偵測
+角色:
+- 貓: Cat
+- 天上石頭: Rocks
+- 路邊石頭: Rocks2
+- 血量: Sprite1
+- 背景: Sprite2
+
+評測條件
+1. 石頭掉下來
+2. 小貓碰撞石頭
+3. 血條有減少
+4. 小貓血量變數減少
+
 */
 window.TestCase = class TestCase extends RootTestCase {
   constructor(judge) {
@@ -13,31 +25,46 @@ window.TestCase = class TestCase extends RootTestCase {
   }
   async start(callback) {
     this.callback = callback;
-    //await this.case01();
+    await this.case01();
   }
 
   // {Cat: 2, Gobo: 7, GoboFire: 9, Dragon: 0}
   async case01() {
     try {
-      var sprites = this.judge.sprites_name();
-      var cat = sprites["Cat"][0];
-      var gobo = sprites["Gobo"][0];
-      await this.judge.press("ArrowRight", 200);
-      await this.judge.delay(500);
-      var fllow1 = cat.x - gobo.x;
-      await this.judge.press("ArrowLeft", 400);
-      await this.judge.delay(600);
-      var fllow2 = cat.x - gobo.x;
-      await this.judge.press("ArrowRight", 100);
-      await this.judge.delay(500);
-      var fllow3 = cat.x - gobo.x;
+      var dec_blood = 0;
+      var hit_cat = 0;
+      await this.judge.delay(3000);
+      var info = this.judge.timeline.info();
+      for (var i of info) {
+        if (i.eventName == "sprite") {
+          var update = i.update;
+          if (
+            update[0] == "Sprite1" &&
+            update[1] == "currentCostume" &&
+            update[2].visible == true &&
+            update[2].currentCostume == 1
+          ) {
+            dec_blood++;
+            console.log("血量減少...", update[2].currentCostume);
+          }
+        }
+        if (
+          i.eventName == "collision" &&
+          i.sprite[0] == "Cat" &&
+          i.sprite[1] == "Rocks"
+        ) {
+          hit_cat++;
+          console.log("貓被砸到");
+        }
+      }
+      console.log(dec_blood, hit_cat);
       this.callback(
         "case01",
-        ((fllow1 == fllow2) == fllow3) == 0,
-        "飛行夥伴隨著小貓移動"
+        dec_blood == 10 && hit_cat == 5,
+        "石頭碰撞，血量減少"
       );
     } catch (e) {
-      this.callback("case01", false, "飛行夥伴隨著小貓移動");
+      this.callback("case01", false, "石頭碰撞，血量減少");
     }
   }
 

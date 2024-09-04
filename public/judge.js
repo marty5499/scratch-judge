@@ -10,7 +10,7 @@ class Timeline {
   }
 
   pushObj(eventName, info) {
-    info["event"] = eventName;
+    info["eventName"] = eventName;
     if (!("timestamp" in info)) {
       info["timestamp"] = Date.now();
     }
@@ -334,7 +334,11 @@ class Judge {
         timestamp: timestamp,
       };
       spriteRecord["records"].push(rec);
-      this.timeline.push("sprite", sprite.sprite.name, [propName, newValue]);
+      this.timeline.push("sprite", "update", [
+        sprite.sprite.name,
+        propName,
+        rec
+      ]);
       for (const spriteId in this.sprites) {
         const otherSprite = this.sprites[spriteId];
         // 不可見的物件不列入碰撞
@@ -349,7 +353,7 @@ class Judge {
             !this.collisions.has(collisionKey)
           ) {
             //console.log(`Collision detected between ${spriteRecord.name} and ${otherSprite.name}`);
-            this.timeline.push("collision", spriteRecord.name, [
+            this.timeline.push("collision", "sprite", [
               spriteRecord.name,
               otherSprite.name,
             ]);
