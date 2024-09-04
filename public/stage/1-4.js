@@ -34,13 +34,11 @@ window.TestCase = class TestCase extends RootTestCase {
       await this.judge.press("ArrowUp", 50);
       await this.judge.delay(500);
       var timeline = this.judge.timeline.info();
-      //console.log(timeline[0]["Sprite1"][1]);
-      //console.log(timeline[timeline.length - 1]["Sprite1"][1]);
-      //console.log(timeline);
       this.callback(
         "case01",
-        timeline[0]["Sprite1"][1] !=
-          timeline[timeline.length - 1]["Sprite1"][1] && timeline.length > 10,
+        timeline[0]["update"][2]["currentCostume"] !=
+          timeline[timeline.length - 1]["update"][2]["currentCostume"] &&
+          timeline.length > 10,
         "換姿勢跳起來"
       );
     } catch (e) {

@@ -32,10 +32,10 @@ window.TestCase = class TestCase extends RootTestCase {
     try {
       await this.judge.press("a", 500);
       var timeline = this.judge.timeline.info();
-      var c0 = timeline[0]["Sprite1"][1];
-      var c1 = timeline[1]["Sprite1"][1];
-      var c2 = timeline[2]["Sprite1"][1];
-      var c3 = timeline[3]["Sprite1"][1];
+      var c0 = timeline[0]["update"][2]["currentCostume"];
+      var c1 = timeline[1]["update"][2]["currentCostume"];
+      var c2 = timeline[2]["update"][2]["currentCostume"];
+      var c3 = timeline[3]["update"][2]["currentCostume"];
       this.callback(
         "case01",
         c0 == 0 && c1 == 1 && c2 == 2 && c3 == 0,
