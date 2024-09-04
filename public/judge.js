@@ -61,17 +61,18 @@ class Judge {
       rect.top +
       (canvas.width / 2 - target.y - height * 1.5) *
         (rect.height / canvas.height);
+    var bias = 0;
     this.vm.postIOData("mouse", {
-      x: x,
-      y: y,
+      x: x + bias,
+      y: y + bias,
       canvasWidth: canvas.width,
       canvasHeight: canvas.height,
       isDown: true,
     });
     await this.delay(100);
     this.vm.postIOData("mouse", {
-      x: x,
-      y: y,
+      x: x + bias,
+      y: y + bias,
       canvasWidth: canvas.width,
       canvasHeight: canvas.height,
       isDown: false,
@@ -337,7 +338,7 @@ class Judge {
       this.timeline.push("sprite", "update", [
         sprite.sprite.name,
         propName,
-        rec
+        rec,
       ]);
       for (const spriteId in this.sprites) {
         const otherSprite = this.sprites[spriteId];
