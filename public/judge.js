@@ -40,6 +40,10 @@ class Judge {
     this.collisionCounts = {}; // 用於紀錄每個物件的碰撞次數
     this.questionHandlerRegistered = false;
     this.monitorVariableChanges();
+    // 添加音效播放事件的監聽
+    this.playedSounds = new Set();
+    // 添加對音效積木的覆蓋
+    this.hookIntoSoundBlocks();
     this.timeline = new Timeline();
   }
 
@@ -373,6 +377,52 @@ class Judge {
         }
       }
     }
+  }
+
+  hookIntoSoundBlocks() {
+    const soundBlocks = [
+      "sound_play",
+      "sound_playuntildone",
+      "sound_stopallsounds",
+    ];
+    const opcodeFunctions = this.vm.runtime._primitives;
+    const judgeInstance = this;
+
+    this.playedSounds = new Set();
+
+    soundBlocks.forEach((opcode) => {
+      const originalFunction = opcodeFunctions[opcode];
+
+      opcodeFunctions[opcode] = function (args, util) {
+        const target = util.target;
+        const soundMenu = args.SOUND_MENU;
+
+        // 獲取音效的 ID 和名稱
+        const sound = target.getSound(soundMenu);
+        const soundId = sound ? sound.soundId : null;
+        const soundName = sound ? sound.name : "Unknown Sound";
+
+        if (opcode === "sound_play" || opcode === "sound_playuntildone") {
+          if (soundId && !judgeInstance.playedSounds.has(soundId)) {
+            // 記錄音效播放事件
+            judgeInstance.timeline.push("sound_play", "sound", {
+              targetName: target.getName(),
+              soundName: soundName,
+              timestamp: Date.now(),
+            });
+
+            // 將音效 ID 添加到已播放的集合中
+            judgeInstance.playedSounds.add(soundId);
+          }
+        } else if (opcode === "sound_stopallsounds") {
+          judgeInstance.timeline.push("sound_stopAll", "sound", {
+            timestamp: Date.now(),
+          });
+        }
+
+        return originalFunction.call(this, args, util);
+      };
+    });
   }
 
   collisionTimes(name) {

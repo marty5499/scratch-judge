@@ -87,3 +87,111 @@ this.judge.timeline
 mingzeke@py-stg-master:~$ scratch-test # 再進入Scratch測試機
 >k9s # 刪除 scratch-judge container 就會重新抓 image 重啟新版本
 ```
+
+
+# judge.js 程式說明
+
+這段程式碼主要定義了一個名為 `Judge` 的類別，以及一個輔助的 `Timeline` 類別，用於對 Scratch 專案進行自動化測試和評估。
+
+---
+
+### **Timeline 類別**
+
+`Timeline` 類別用於記錄事件的時間線。它提供以下方法：
+
+- `push(eventName, name, value)`：將事件名稱、屬性名稱和值添加到時間線中。
+- `pushObj(eventName, info)`：將包含事件資訊的物件添加到時間線中。
+- `info()`：返回整個時間線資訊。
+- `stringify()`：將時間線轉換為 JSON 字串。
+
+---
+
+### **Judge 類別**
+
+`Judge` 類別的主要功能是監控和控制 Scratch 專案的執行，模擬使用者的操作，並記錄專案執行過程中的各種事件和狀態變化。
+
+#### **主要屬性**
+
+- `canvas`：畫布元素，用於顯示 Scratch 專案。
+- `vm`：Scratch 虛擬機實例，負責執行 Scratch 程式。
+- `fixedRandom`：固定的隨機值，用於控制隨機性。
+- `scriptSrc`：腳本來源，用於載入特定的測試腳本。
+- `TestCase`：測試用例類別，用於定義測試邏輯。
+- `clones`：記錄分身的創建和刪除狀態。
+- `sprites`：存儲所有角色的資訊和狀態。
+- `variables`：存儲所有變數的資訊和變化記錄。
+- `collisions`：記錄已發生的碰撞事件。
+- `collisionCounts`：統計每個角色發生碰撞的次數。
+- `timeline`：`Timeline` 類別的實例，用於記錄事件時間線。
+
+#### **主要方法**
+
+1. **事件模擬**
+
+   - `async clickSprite(target)`：模擬在指定的角色上進行滑鼠點擊操作。
+   - `async press(key, ms)`：模擬按下指定的鍵盤按鍵一段時間。
+   - `enterInput(text)`：模擬使用者在輸入框中輸入文字。
+
+2. **狀態監控與記錄**
+
+   - `loadSprite()`：載入所有角色，記錄其初始狀態，並為每個角色註冊監控器。
+   - `monitorClonesUpdate(target)`：監控角色的分身創建和刪除事件。
+   - `onCloneState(target, action)`：當分身被創建或刪除時，更新記錄和時間線。
+   - `registerObservers(target)`：為角色的特定屬性註冊監控，以監控其變化。
+   - `monitorProperty(target, propName, isCoordinate = false)`：監控角色的特定屬性，當屬性變化時觸發 `onUpdate`。
+   - `onUpdate(sprite, propName, newValue)`：當角色的屬性變化時，更新記錄，並檢測與其他角色的碰撞。
+
+3. **變數監控**
+
+   - `monitorVariableChanges()`：監控舞台上所有變數的變化，並記錄變化過程。
+
+4. **碰撞檢測**
+
+   - `checkCollision(sprite1, sprite2)`：檢測兩個角色之間是否發生碰撞。
+   - `collisionTimes(name)`：返回指定角色發生碰撞的次數。
+
+5. **使用者互動處理**
+
+   - `registerQuestionHandler()`：註冊處理 Scratch 中的提問事件，模擬使用者輸入。
+
+6. **測試流程控制**
+
+   - `async start()`：開始測試流程，初始化環境，執行測試用例。
+   - `async restart()`：重置測試環境，重新開始測試。
+   - `checkIfExecutionComplete(self)`：檢查專案執行是否完成，完成後調用測試用例的 `onCompleted` 方法。
+
+7. **輔助方法**
+
+   - `delay(ms)`：延遲指定的時間。
+   - `sprites_id()`：返回以角色 ID 為鍵的角色資訊。
+   - `sprites_name()`：返回以角色名稱為鍵的角色資訊。
+
+---
+
+### **整體流程**
+
+1. **初始化**：建立 `Judge` 實例時，會初始化各種屬性，並開始監控變數的變化。
+
+2. **載入角色**：通過 `loadSprite()` 方法，載入所有角色並為其註冊屬性監控器。
+
+3. **監控角色和變數變化**：當角色的屬性（如位置、方向、造型等）或變數的值發生變化時，會被相應的監控器捕獲，並記錄在時間線中。
+
+4. **模擬使用者操作**：通過方法如 `clickSprite()`、`press()`、`enterInput()`，模擬使用者的滑鼠點擊、鍵盤按鍵和文字輸入等操作。
+
+5. **碰撞檢測**：在角色位置變化時，通過 `checkCollision()` 方法檢測是否與其他角色發生碰撞，並記錄碰撞事件。
+
+6. **執行測試用例**：`start()` 方法開始執行測試用例，並在測試完成後檢查執行結果。
+
+7. **結果記錄與輸出**：所有事件和狀態變化都被記錄在 `timeline` 中，可供後續分析和輸出。
+
+---
+
+### **應用場景**
+
+這段程式碼適用於需要對 Scratch 專案進行自動化測試的情況。它可以模擬使用者的操作，監控專案內部的狀態變化，並對特定的事件（如變數變化、角色碰撞、分身創建等）進行記錄和處理。這對於教育、遊戲測試、自動化評估等場景非常有用。
+
+---
+
+### **總結**
+
+通過定義 `Judge` 和 `Timeline` 類別，程式碼實現了對 Scratch 專案的全面監控和測試功能。它不僅能夠模擬使用者的各種操作，還能夠深入監控專案內部的狀態和事件，為自動化測試和評估提供了強大的支持。
