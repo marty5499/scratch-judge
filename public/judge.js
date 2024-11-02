@@ -388,38 +388,29 @@ class Judge {
     const opcodeFunctions = this.vm.runtime._primitives;
     const judgeInstance = this;
 
-    this.playedSounds = new Set();
-
     soundBlocks.forEach((opcode) => {
       const originalFunction = opcodeFunctions[opcode];
 
       opcodeFunctions[opcode] = function (args, util) {
         const target = util.target;
-        const soundMenu = args.SOUND_MENU;
-
-        // 獲取音效的 ID 和名稱
-        const sound = target.getSound(soundMenu);
-        const soundId = sound ? sound.soundId : null;
-        const soundName = sound ? sound.name : "Unknown Sound";
+        const soundName = args.SOUND_MENU;
 
         if (opcode === "sound_play" || opcode === "sound_playuntildone") {
-          if (soundId && !judgeInstance.playedSounds.has(soundId)) {
-            // 記錄音效播放事件
+          if (soundName && !judgeInstance.playedSounds.has(soundName)) {
+            // 记录音效播放事件，只记录音效名称
             judgeInstance.timeline.push("sound_play", "sound", {
               targetName: target.getName(),
               soundName: soundName,
               timestamp: Date.now(),
             });
-
-            // 將音效 ID 添加到已播放的集合中
-            judgeInstance.playedSounds.add(soundId);
+            // 将音效名称添加到已播放的集合中
+            judgeInstance.playedSounds.add(soundName);
           }
         } else if (opcode === "sound_stopallsounds") {
           judgeInstance.timeline.push("sound_stopAll", "sound", {
             timestamp: Date.now(),
           });
         }
-
         return originalFunction.call(this, args, util);
       };
     });
@@ -502,12 +493,12 @@ class Judge {
   }
 
   checkIfExecutionComplete(self) {
-    if (vm.runtime.threads.length === 0) {
+    if (self.vm.runtime.threads.length === 0) {
       const ansPNG = self.scriptSrc.replace(".js", ".png");
       self.testcase.onCompleted(ansPNG);
     } else {
-      // 如果還有程序在執行，過一段時間再檢查一次
-      setTimeout(() => self.checkIfExecutionComplete(self), 100); // 每100毫秒檢查一次
+      // 如果还有程序在执行，过一段时间再检查一次
+      setTimeout(() => self.checkIfExecutionComplete(self), 100); // 每100毫秒检查一次
     }
   }
 }
