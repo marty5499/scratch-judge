@@ -42,9 +42,25 @@ class Judge {
     this.monitorVariableChanges();
     // 添加音效播放事件的監聽
     this.playedSounds = new Set();
-    // 添加對音效積木的覆蓋
     this.hookIntoSoundBlocks();
+    this.hookIntoBroadcastBlocks();
     this.timeline = new Timeline();
+  }
+
+  async restart() {
+    this.vm.stopAll();
+    this.fixedRandom = 0.5;
+    this.clones = {}; // 分身建立、刪除紀錄
+    this.variables = {}; // 所有變數
+    this.questionHandlerRegistered = false;
+    this.monitorVariableChanges();
+    this.timeline = new Timeline();
+    this.sprites = {};
+    this.collisions = new Set(); // 重置碰撞記錄
+    this.collisionCounts = {}; // 重置碰撞次數
+    this.playedSounds = new Set();
+    this.loadSprite();
+    this.vm.greenFlag();
   }
 
   async clickSprite(target) {
@@ -379,6 +395,35 @@ class Judge {
     }
   }
 
+  hookIntoBroadcastBlocks() {
+    const broadcastBlocks = ["event_broadcast", "event_broadcastandwait"];
+    const opcodeFunctions = this.vm.runtime._primitives;
+    const judgeInstance = this;
+
+    broadcastBlocks.forEach((opcode) => {
+      const originalFunction = opcodeFunctions[opcode];
+      if (typeof originalFunction !== "function") {
+        console.warn(
+          `Original function for opcode ${opcode} is not a function.`
+        );
+        return;
+      }
+      opcodeFunctions[opcode] = function (args, util) {
+        const broadcastMessage =
+          args.BROADCAST_OPTION && args.BROADCAST_OPTION.name;
+        if (broadcastMessage) {
+          judgeInstance.timeline.push("broadcast", "message", broadcastMessage);
+        } else {
+          console.warn(
+            `Broadcast message not found in args for opcode '${opcode}':`,
+            args
+          );
+        }
+        return originalFunction.call(this, args, util);
+      };
+    });
+  }
+
   hookIntoSoundBlocks() {
     const soundBlocks = [
       "sound_play",
@@ -459,21 +504,6 @@ class Judge {
         ele.innerHTML += `<h3 style="background-color:#ffaaaa">${name}: 測試 ${msg} 失敗</h3>`;
       }
     });
-  }
-
-  async restart() {
-    this.vm.stopAll();
-    this.fixedRandom = 0.5;
-    this.clones = {}; // 分身建立、刪除紀錄
-    this.variables = {}; // 所有變數
-    this.questionHandlerRegistered = false;
-    this.monitorVariableChanges();
-    this.timeline = new Timeline();
-    this.sprites = {};
-    this.collisions = new Set(); // 重置碰撞記錄
-    this.collisionCounts = {}; // 重置碰撞次數
-    this.loadSprite();
-    this.vm.greenFlag();
   }
 
   sprites_id() {

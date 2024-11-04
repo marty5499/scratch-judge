@@ -5,11 +5,11 @@
 - 優化 判斷精準度
 - scratch 工具加上popup dialog 顯示
 
-# 11/01 
+# 11/04
+- 支援廣播:測試 g-03關卡 event.eventName === "broadcast" ok
 
-
-
-
+# 11/01
+- 支援音效:測試 g-03關卡 event.eventName === "sound_play" ok
 
 # 09/02 繪圖關卡增加底圖描邊解答
 - canvas疊上一張圖片設定透明度，並且修改 draw-testcase.js會放上解答圖片
