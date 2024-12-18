@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch-Judge</title>
+    <style>
+        #main {
+            display: flex;
+            align-items: start;
+            justify-content: space-around;
+        }
+
+        #board {
+            border: 2px solid #ffa500;
+        }
+
+        #test {
+            flex: 0 0 auto;
+            margin-right: 20px;
+        }
+
+        #list {
+            flex: 1 1 auto;
+            background-color: #f4f4f4;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #container {
+            position: relative;
+        }
+
+        #overlayImage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.20;
+            z-index: 10;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="main">
+            <div id="board">
+                <div id="canvas-container" style="position: relative; width: 640px; height: 480px;">
+                    <canvas id="test" style="width: 100%; height: 100%;"></canvas>
+                    <img id="overlayImage">
+                </div>
+            </div>
+            <div id="list">
+                <div>
+                    <h2>測試結果</h2>
+                </div>
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./scratch-vm.js"></script>
+    <script src="./scratch-storage.js"></script>
+    <script src="./scratch-svg-renderer.js"></script>
+    <script src="./scratch-render.js"></script>
+    <script src="./resemble.min.js"></script>
+
+    <script src="./draw-testcase.js"></script>
+    <script src="./judge.js"></script>
+    <script>
+        window.devicePixelRatio = 1;
+        var canvas = document.getElementById('test');
+        var render = new ScratchRender(canvas);
+        var vm = new VirtualMachine();
+        var storage = new ScratchStorage();
+        vm.attachStorage(storage);
+        vm.attachRenderer(render);
+        vm.attachV2SVGAdapter(new ScratchSVGRenderer.SVGRenderer());
+        vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
+
+        let lastTime = 0;
+        window.frameRate = 60;
+        window.runSpeed = 100.0 / window.frameRate;
+
+        const originalStep = vm.runtime._step;
+        vm.runtime._step = function (time) {
+            if (time - lastTime >= 1000 / window.frameRate) {
+                lastTime = time;
+                originalStep.call(vm.runtime, time);
+            }
+            requestAnimationFrame(vm.runtime._step.bind(vm.runtime));
+        };
+
+        // 事件監聽器設置
+        document.addEventListener('keydown', e => {
+            vm.postIOData('keyboard', {
+                key: e.key,
+                isDown: true
+            });
+        });
+
+        document.addEventListener('keyup', e => {
+            vm.postIOData('keyboard', {
+                key: e.key,
+                isDown: false
+            });
+        });
+
+        function getMousePosition(event, rect) {
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            return { x, y };
+        }
+
+        canvas.addEventListener('mousedown', e => {
+            const rect = canvas.getBoundingClientRect();
+            const { x, y } = getMousePosition(e, rect);
+            vm.postIOData('mouse', {
+                x: x,
+                y: y,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                isDown: true
+            });
+        });
+
+        canvas.addEventListener('mouseup', e => {
+            const rect = canvas.getBoundingClientRect();
+            const { x, y } = getMousePosition(e, rect);
+            vm.postIOData('mouse', {
+                x: x,
+                y: y,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                isDown: false
+            });
+        });
+
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            const { x, y } = getMousePosition(e, rect);
+            vm.postIOData('mouse', {
+                x: x,
+                y: y,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                isDown: e.buttons === 1
+            });
+        });
+
+        // 頁面載入時從 URL 參數取得要執行的專案
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectUrl = urlParams.get('url');
+            
+            if (!projectUrl) {
+                console.error('No project URL provided');
+                return;
+            }
+
+            // 從 URL 中提取檔案名稱和路徑
+            const projectFileName = projectUrl.split('/').pop().replace('.sb3', '');
+            const projectPath = projectUrl.substring(0, projectUrl.lastIndexOf('/') + 1);
+            console.log('Loading project:', projectUrl);
+            
+            var script = document.createElement('script');
+            script.src = `${projectPath}${projectFileName}.js`;
+            script.onerror = () => {
+                console.error('Failed to load test script:', script.src);
+            };
+            
+            script.onload = () => {
+                fetch(projectUrl, {
+                    mode: 'cors',  // 啟用 CORS
+                    headers: {
+                        'Accept': 'application/octet-stream'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.arrayBuffer();
+                })
+                .then(projectData => {
+                    vm.start();
+                    vm.loadProject(projectData).then(async () => {
+                        var judge = new Judge(canvas, vm, script.src, window.TestCase);
+                        window.judge = judge;
+                        await judge.start();
+                    }).catch(error => {
+                        console.error('Failed to load or start the project:', error);
+                    });
+                })
+                .catch(error => {
+                    console.error('Failed to fetch the .sb3 file:', error);
+                    document.getElementById('result').innerHTML = 
+                        `<div style="color: red">Error loading project: ${error.message}</div>`;
+                });
+            };
+            document.head.appendChild(script);
+        };
+    </script>
+</body>
+
+</html> 

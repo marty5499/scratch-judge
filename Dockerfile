@@ -1,5 +1,11 @@
 # 使用官方的 Node.js 鏡像作為基礎鏡像
-FROM node:16-alpine
+FROM node:16
+
+# 安裝 Puppeteer 相依套件
+RUN apt-get update && apt-get install -y \
+    chromium \
+    chromium-sandbox \
+    && rm -rf /var/lib/apt/lists/*
 
 # 設置工作目錄
 WORKDIR /app
@@ -17,4 +23,4 @@ COPY . .
 EXPOSE 3000
 
 # 啟動應用程序
-CMD ["npm", "start"]
+CMD ["npm", "run", "judge"]
