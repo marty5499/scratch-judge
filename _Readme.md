@@ -1,8 +1,36 @@
 開發 scratch-judge 引擎
 ===
 
-# 啟動方式
+專案清單
+
+- scratch-gui        Scratch 積木工具 (Egame版本)
+   - 修改 scratch blockly 程式，設計 Egame 的積木
+   - npm run build 產生 scratch-gui 網頁程式
+
+- scratch-web        Scratch 積木工具 + nodeJS 伺服器 (提供後端存取)
+   - 執行 ./dockerBuild.sh 會複製 scratch-gui/build 到 public 資料夾 (覆蓋)
+
+- scratch-judge      Scratch 評測引擎
+
+## 啟動方式
+```sh
+# 評測引擎測試 (scratch-judge)
 >npm start
+
+# scratch-web 積木工具 ( SCRATCH-WEB)
+# /kingkit.codes/2024/scratch/scratch-web
+>npm webServer
+```
+
+## 更新到 Egame
+```sh
+# or build.sh 產生 image 並且 push to nest.webduino.tw/scratch-judge:latest
+> ./build_x86.sh 
+>egame-stg  # 先進入 egame-stg 測試機
+mingzeke@py-stg-master:~$ scratch-test # 再進入Scratch測試機
+>k9s # 刪除 scratch-judge container 就會重新抓 image 重啟新版本
+```
+
 
 [首頁](http://localhost:3000/index.html)
 [關卡解答展示](http://localhost:3000/ans.html)
@@ -78,15 +106,6 @@ this.judge.timeline
 16. **`blocks`**: 與該角色相關的積木腳本的列表，描述角色的行為。
 17. **`variables`**: 角色特有的變數表，用於存儲角色私有的數據。
 
-
-# 更新到 Egame
-```sh
-# or build.sh 產生 image 並且 push to nest.webduino.tw/scratch-judge:latest
-> ./build_x86.sh 
->egame-stg  # 先進入 egame-stg 測試機
-mingzeke@py-stg-master:~$ scratch-test # 再進入Scratch測試機
->k9s # 刪除 scratch-judge container 就會重新抓 image 重啟新版本
-```
 
 
 # judge.js 程式說明
