@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scratch Player - test.sb3</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    #scratch-stage {
+      border: 3px solid #4CAF50;
+      margin: 20px 0;
+      width: 480px;
+      height: 320px;
+    }
+    
+    #status {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+    
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    
+    .error {
+      color: #f44336;
+      font-weight: bold;
+    }
+    
+    .success {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    
+    .loading {
+      color: #2196F3;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Scratch Player</h1>
+  
+  <div id="container">
+    <div id="status">準備就緒</div>
+    
+    <canvas id="scratch-stage" width="480" height="320"></canvas>
+    
+    <div class="controls">
+      <button id="stopBtn">停止執行</button>
+      <button id="restartBtn">重新開始</button>
+    </div>
+    
+  </div>
+
+  <script src="./scratch-vm.js"></script>
+  <script src="./scratch-storage.js"></script>
+  <script src="./scratch-svg-renderer.js"></script>
+  <script src="./scratch-render.js"></script>
+
+  <script>
+    const canvas = document.getElementById('scratch-stage');
+    const statusDiv = document.getElementById('status');
+    const stopBtn = document.getElementById('stopBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    
+    const renderer = new ScratchRender(canvas);
+    renderer.resize(480, 320);
+    
+    const vm = new VirtualMachine();
+    
+    const storage = new ScratchStorage();
+    vm.attachStorage(storage);
+    
+    vm.attachRenderer(renderer);
+    
+    vm.attachV2SVGAdapter(new ScratchSVGRenderer.SVGRenderer());
+    vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
+    
+    let projectLoaded = false;
+    let isRunning = false;
+    
+    function updateStatus(message, className) {
+      statusDiv.textContent = message;
+      statusDiv.className = className || '';
+    }
+    
+    async function loadProject() {
+      try {
+        // 從 URL hash 取得檔案名稱，預設為 test.sb3
+        const fileName = window.location.hash.slice(1) || 'test.sb3';
+        updateStatus('正在載入 ' + fileName + '...', 'loading');
+        
+        const response = await fetch('/' + fileName);
+        
+        if (!response.ok) {
+          throw new Error('HTTP error! status: ' + response.status);
+        }
+        
+        const projectData = await response.arrayBuffer();
+        
+        await vm.loadProject(projectData);
+        
+        projectLoaded = true;
+        updateStatus('專案載入成功！', 'success');
+        
+        console.log('Project loaded successfully');
+        
+      } catch (error) {
+        console.error('載入專案失敗:', error);
+        updateStatus('載入失敗: ' + error.message, 'error');
+      }
+    }
+    
+    function startProject() {
+      if (!projectLoaded) {
+        updateStatus('請先載入專案', 'error');
+        return;
+      }
+      
+      vm.start();
+      vm.greenFlag();
+      isRunning = true;
+      
+      updateStatus('專案執行中...', 'success');
+    }
+    
+    function stopProject() {
+      vm.stopAll();
+      isRunning = false;
+      
+      updateStatus('專案已停止', '');
+    }
+    
+    function restartProject() {
+      if (!projectLoaded) {
+        updateStatus('請先載入專案', 'error');
+        return;
+      }
+      
+      vm.stopAll();
+      
+      vm.runtime.clearEffects();
+      vm.resetSprites();
+      
+      vm.start();
+      vm.greenFlag();
+      isRunning = true;
+      
+      updateStatus('專案已重新開始', 'success');
+    }
+    
+    stopBtn.addEventListener('click', stopProject);
+    restartBtn.addEventListener('click', restartProject);
+    
+    document.addEventListener('keydown', function(e) {
+      if (!isRunning) return;
+      
+      vm.postIOData('keyboard', {
+        key: e.key,
+        isDown: true
+      });
+      
+      e.preventDefault();
+    });
+    
+    document.addEventListener('keyup', function(e) {
+      if (!isRunning) return;
+      
+      vm.postIOData('keyboard', {
+        key: e.key,
+        isDown: false
+      });
+      
+      e.preventDefault();
+    });
+    
+    function getMousePos(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left) * (canvas.width / rect.width),
+        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+      };
+    }
+    
+    canvas.addEventListener('mousedown', function(e) {
+      if (!isRunning) return;
+      
+      const pos = getMousePos(e);
+      vm.postIOData('mouse', {
+        x: pos.x - (canvas.width / 2),
+        y: (canvas.height / 2) - pos.y,
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height,
+        isDown: true
+      });
+    });
+    
+    canvas.addEventListener('mouseup', function(e) {
+      if (!isRunning) return;
+      
+      const pos = getMousePos(e);
+      vm.postIOData('mouse', {
+        x: pos.x - (canvas.width / 2),
+        y: (canvas.height / 2) - pos.y,
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height,
+        isDown: false
+      });
+    });
+    
+    canvas.addEventListener('mousemove', function(e) {
+      if (!isRunning) return;
+      
+      const pos = getMousePos(e);
+      vm.postIOData('mouse', {
+        x: pos.x - (canvas.width / 2),
+        y: (canvas.height / 2) - pos.y,
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height,
+        isDown: e.buttons === 1
+      });
+    });
+    
+    // 監聽 hash 變化
+    window.addEventListener('hashchange', function() {
+      location.reload();
+    });
+    
+    window.addEventListener('load', function() {
+      updateStatus('自動載入中...', 'loading');
+      // 自動載入並執行
+      setTimeout(async function() {
+        await loadProject();
+        if (projectLoaded) {
+          startProject();
+        }
+      }, 500);
+    });
+  </script>
+</body>
+</html>
